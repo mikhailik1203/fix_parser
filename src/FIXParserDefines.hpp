@@ -40,6 +40,7 @@ namespace fix{
     enum class FIXTagType{
         invalid = 0,
         BOOL,
+        CHAR,
         INT,
         DOUBLE,
         STRING,
@@ -103,7 +104,6 @@ namespace fix{
         std::string_view value_;
     };
 
-
     struct FIXDate{
         uint32_t year()const;
         u_int8_t month()const;
@@ -113,6 +113,7 @@ namespace fix{
     public:
         std::string_view value_;
     };
+
     struct FIXDatetime{
         uint32_t year()const;
         u_int8_t month()const;
@@ -125,6 +126,7 @@ namespace fix{
     public:
         std::string_view value_;
     };
+
     struct FIXRawData{
         uint32_t size()const;
         char at(uint32_t index)const;

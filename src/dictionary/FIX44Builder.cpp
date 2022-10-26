@@ -193,6 +193,26 @@ namespace fix44_gen{
 
         return {"V", FIXMsgDefinition(FIXProtocol::FIX44, "V", FIX44Location::MarketDataRequestMessage, tags, blocks, groups, positions)};
     }
+
+    std::pair<std::string, FIXMsgDefinition> build_newordersingle_message(FIXTagVocabulary &vocab, FIXBlockDefinitionsT &block_defs, FIXGroupDefinitionsT &group_defs){
+        FIXTagLocation loc{FIX44Location::NewOrderSingleMessage, TagLocation::message};
+
+        SupportedBlocksT blocks = {FIX44Location::HeaderBlock};
+        block_defs.find(FIX44Location::HeaderBlock)->second.add_location(loc);
+
+        SupportedGroupsT groups;
+
+        SupportedTagsT tags = {ClOrdID, Side, OrderQty, Price, Symbol, ExecInst, OrdType, TimeInForce};
+        for(auto tag_id: tags){
+            vocab.add_tag_location(tag_id, loc);
+        }
+        PositionsT positions{{PositionType::block, 0}, {PositionType::tag, 0}, {PositionType::tag, 1}, 
+                {PositionType::tag, 2}, {PositionType::tag, 3}, {PositionType::tag, 4}, {PositionType::tag, 5}, 
+                {PositionType::tag, 6}, {PositionType::tag, 7}};
+
+        return {"D", FIXMsgDefinition(FIXProtocol::FIX44, "D", FIX44Location::NewOrderSingleMessage, tags, blocks, groups, positions)};
+    }
+
 }
 
 using namespace fix44_gen;
@@ -208,16 +228,23 @@ FIXDictionary FIX44Builder::build(){
 FIXTagVocabulary FIX44Builder::build_vocabulary(){
     TagDefinitionsT tags{{Account, FIXTagDefinition(Account, FIXTagType::STRING)}, 
                          {BeginSeqNo, FIXTagDefinition(BeginSeqNo, FIXTagType::INT)},
+                         {ClOrdID, FIXTagDefinition(ClOrdID, FIXTagType::STRING)}, 
                          {EndSeqNo, FIXTagDefinition(EndSeqNo, FIXTagType::INT)},
+                         {ExecInst, FIXTagDefinition(ExecInst, FIXTagType::STRING)}, 
                          {MsgType, FIXTagDefinition(MsgType, FIXTagType::STRING)},
                          {NewSeqNo, FIXTagDefinition(NewSeqNo, FIXTagType::INT)},
+                         {OrderQty, FIXTagDefinition(OrderQty, FIXTagType::DOUBLE)},
+                         {OrdType, FIXTagDefinition(OrdType, FIXTagType::CHAR)},
+                         {Price, FIXTagDefinition(Price, FIXTagType::DOUBLE)},
                          {RefSeqNum, FIXTagDefinition(RefSeqNum, FIXTagType::INT)},
                          {SenderCompID, FIXTagDefinition(SenderCompID, FIXTagType::STRING)},
                          {TargetCompID, FIXTagDefinition(TargetCompID, FIXTagType::STRING)},
                          {Text, FIXTagDefinition(Text, FIXTagType::STRING)},
                          {MsgSeqNum, FIXTagDefinition(MsgSeqNum, FIXTagType::INT)},
                          {SendingTime, FIXTagDefinition(SendingTime, FIXTagType::DATETIME)},
+                         {Side, FIXTagDefinition(Side, FIXTagType::CHAR)},
                          {HeartBtInt, FIXTagDefinition(HeartBtInt, FIXTagType::INT)},
+                         {TimeInForce, FIXTagDefinition(TimeInForce, FIXTagType::CHAR)},
                          {RawDataLength, FIXTagDefinition(RawDataLength, FIXTagType::RAWDATALEN)},
                          {RawData, FIXTagDefinition(RawData, FIXTagType::RAWDATA)},
                          {TestReqId, FIXTagDefinition(TestReqId, FIXTagType::STRING)},
@@ -257,5 +284,6 @@ FIXMsgDefinitionsT FIX44Builder::build_messages(FIXTagVocabulary &vocab, FIXBloc
                             build_resend_request_message(vocab, block_defs, group_defs), 
                             build_reject_message(vocab, block_defs, group_defs),
                             build_sequence_reset_message(vocab, block_defs, group_defs), 
-                            build_marketdatarequest_message(vocab, block_defs, group_defs)};
+                            build_marketdatarequest_message(vocab, block_defs, group_defs),
+                            build_newordersingle_message(vocab, block_defs, group_defs)};
 }

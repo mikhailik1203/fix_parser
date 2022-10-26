@@ -8,16 +8,23 @@ namespace fix44_gen{
     enum FIX44Tags{
         Account = 1,
         BeginSeqNo = 7, 
+        ClOrdID = 11,
         EndSeqNo =16,
+        ExecInst = 18,
         MsgSeqNum = 34, 
         MsgType = 35,
         NewSeqNo = 36,
+        OrderQty = 38,
+        OrdType = 40,
+        Price = 44,
         RefSeqNum = 45,
         SenderCompID = 49,
         SendingTime = 52,
+        Side = 54,
         Symbol = 55,
         TargetCompID = 56,
         Text = 58,
+        TimeInForce = 59,
         RawDataLength = 95,
         RawData = 96,
         HeartBtInt = 108,
@@ -55,6 +62,7 @@ namespace fix44_gen{
         SequenceResetMessage,
 
         MarketDataRequestMessage,
+        NewOrderSingleMessage,
     };
 
 }
@@ -62,7 +70,6 @@ namespace fix44_gen{
 namespace fix{
     class FIXTagVocabulary;
     class FIXDictionary;
-
 
     // Builds vocabulary and messages&groups&blocks definitions for FIX44 
     class FIX44Builder{

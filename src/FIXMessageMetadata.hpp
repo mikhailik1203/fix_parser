@@ -32,7 +32,7 @@ namespace fix{
         bool support_tag(tag_id_t tag)const;
         FIXTagType tag_type(tag_id_t tag)const;
 
-        size_t tag_bool_count()const noexcept{return tag_bool_count_;}
+        size_t tag_char_count()const noexcept{return tag_char_count_;}
         size_t tag_int_count()const noexcept{return tag_int_count_;}
         size_t tag_double_count()const noexcept{return tag_double_count_;}
         size_t tag_string_count()const noexcept{return tag_string_count_;}
@@ -64,7 +64,7 @@ namespace fix{
         TagToMetaIndexT tag_to_meta_idx_;
 
         std::string buffer_;
-        uint16_t tag_bool_count_ = 0;
+        uint16_t tag_char_count_ = 0;
         uint16_t tag_int_count_ = 0;
         uint16_t tag_double_count_ = 0;
         uint16_t tag_string_count_ = 0;

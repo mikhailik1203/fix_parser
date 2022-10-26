@@ -121,6 +121,25 @@ namespace {
         return md_msg;
     }
 
+    fix::FIXMessage create_NewOrderSingle(const FIXParser &parser){
+        fix::FIXMessage ord_msg = parser.create("D");
+        {
+            ord_msg.set_string(fix44_gen::SenderCompID, {"BenchSenderId"});
+            ord_msg.set_string(fix44_gen::TargetCompID, {"BenchTargetId"});
+            ord_msg.set_int(fix44_gen::MsgSeqNum, 777);
+            ord_msg.set_datetime(fix44_gen::SendingTime, {"20221005 12:44:55.123456"});
+            ord_msg.set_string(fix44_gen::ClOrdID, {"987654321"});
+            ord_msg.set_char(fix44_gen::Side, '1');
+            ord_msg.set_double(fix44_gen::OrderQty, {"10.0"});
+            ord_msg.set_double(fix44_gen::Price, {"100.0"});
+            ord_msg.set_string(fix44_gen::Symbol, {"MSFT"});
+            ord_msg.set_string(fix44_gen::ExecInst, {"6"});
+            ord_msg.set_char(fix44_gen::OrdType, '2');
+            ord_msg.set_char(fix44_gen::TimeInForce, '1');
+        }
+        return ord_msg;
+    }
+
     void benchmark_serialise_MDSubscription() {
         FIXDictionary dict_fix44 = FIX44Builder::build();
         FIXParser parser(dict_fix44);
@@ -231,6 +250,116 @@ namespace {
         }
     }
 
+    void benchmark_serialise_NewOrderSingle() {
+        FIXDictionary dict_fix44 = FIX44Builder::build();
+        FIXParser parser(dict_fix44);
+        uint64_t avg_nsec = 0;        
+        { /// measure throughput
+            auto msg = create_NewOrderSingle(parser);        
+            uint64_t thoughput_nsec = 0, dur = 0;
+            {
+                auto start_tm = std::chrono::high_resolution_clock::now();
+                for (size_t i = 0; i < BENCHMARK_DATA_COUNT; ++i) {
+                    auto res = FIXParser::serialize(msg, true, true);
+                    dur += res.length();
+                }
+                auto finish_tm = std::chrono::high_resolution_clock::now();
+                thoughput_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(finish_tm - start_tm).count();
+            }
+            avg_nsec = thoughput_nsec/BENCHMARK_DATA_COUNT;
+            std::cout << " Throughput of NewOrderSngl[D] serialization " << BENCHMARK_DATA_COUNT << " time is " << thoughput_nsec
+                      << " nsec, avg="<< avg_nsec<< "nsec per call"<< std::endl;
+            {
+                auto res = FIXParser::serialize(msg, true, true);
+                std::cout << " Message is ["<< res.buffer()<< "], length "<< res.length() << ", total="<< dur<< std::endl;
+            }
+        }
+
+        { /// measure latency
+            using LatencyT = std::vector<uint64_t>;
+            LatencyT lat_data;
+            lat_data.reserve(BENCHMARK_DATA_COUNT);
+            auto msg = create_NewOrderSingle(parser);
+            uint64_t dur = 0;
+            auto start_tm = std::chrono::high_resolution_clock::now();
+            for (size_t i = 0; i < BENCHMARK_DATA_COUNT; ++i) {
+                {
+                    auto res = FIXParser::serialize(msg, true, true);
+                    dur += res.length();
+                }
+                auto finish_tm = std::chrono::high_resolution_clock::now();
+                lat_data.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(finish_tm - start_tm).count());
+                start_tm = finish_tm;
+            }
+            std::sort(lat_data.begin(), lat_data.end());
+
+            size_t index_95perc = static_cast<double>(lat_data.size()) * 0.95;
+            size_t index_99perc = static_cast<double>(lat_data.size()) * 0.99;
+            std::cout << " Latency of of NewOrderSngl[D] serialization: min=" << *lat_data.begin() << " nsec; 50%="
+                      << lat_data[lat_data.size() / 2] << " nsec; 95%=" << lat_data[index_95perc]
+                      << " nsec; 99%=" << lat_data[index_99perc] << " nsec; max=" << *lat_data.rbegin() << " nsec"
+                      << std::endl
+                      << "\t" << *lat_data.begin()<< " | "<< lat_data[lat_data.size() / 2]<< " | "<< lat_data[index_95perc] << " | "
+                      << lat_data[index_99perc] << " | "<< *lat_data.rbegin()<< std::endl;
+        }
+    }
+
+    void benchmark_parse_NewOrderSingle() {
+        FIXDictionary dict_fix44 = FIX44Builder::build();
+        FIXParser parser(dict_fix44);
+        uint64_t avg_nsec = 0;        
+        { /// measure throughput
+            auto msg = create_NewOrderSingle(parser);        
+            auto raw_msg = FIXParser::serialize(msg, true, true);
+            uint64_t thoughput_nsec = 0, dur = 0;
+            {
+                auto start_tm = std::chrono::high_resolution_clock::now();
+                for (size_t i = 0; i < BENCHMARK_DATA_COUNT; ++i) {
+                    auto res = parser.parse(raw_msg);
+                    dur += static_cast<int>(res.protocol());
+                }
+                auto finish_tm = std::chrono::high_resolution_clock::now();
+                thoughput_nsec = std::chrono::duration_cast<std::chrono::nanoseconds>(finish_tm - start_tm).count();
+            }
+            avg_nsec = thoughput_nsec/BENCHMARK_DATA_COUNT;
+            std::cout << " Throughput of NewOrderSngl[D] parse " << BENCHMARK_DATA_COUNT << " time is " << thoughput_nsec
+                      << " nsec, avg="<< avg_nsec<< "nsec per call"<< std::endl;
+            {
+                auto res = FIXParser::serialize(msg, true, true);
+                std::cout << " Message is ["<< raw_msg.buffer()<< "], length "<< raw_msg.length() << ", total="<< dur<< std::endl;
+            }
+        }
+
+        { /// measure latency
+            using LatencyT = std::vector<uint64_t>;
+            LatencyT lat_data;
+            lat_data.reserve(BENCHMARK_DATA_COUNT);
+            auto msg = create_NewOrderSingle(parser);
+            auto raw_msg = FIXParser::serialize(msg, true, true);
+            uint64_t dur = 0;
+            auto start_tm = std::chrono::high_resolution_clock::now();
+            for (size_t i = 0; i < BENCHMARK_DATA_COUNT; ++i) {
+                {
+                    auto res = parser.parse(raw_msg);
+                    dur += static_cast<int>(res.protocol());
+                }
+                auto finish_tm = std::chrono::high_resolution_clock::now();
+                lat_data.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(finish_tm - start_tm).count());
+                start_tm = finish_tm;
+            }
+            std::sort(lat_data.begin(), lat_data.end());
+
+            size_t index_95perc = static_cast<double>(lat_data.size()) * 0.95;
+            size_t index_99perc = static_cast<double>(lat_data.size()) * 0.99;
+            std::cout << " Latency of of NewOrderSngl[D] parse: min=" << *lat_data.begin() << " nsec; 50%="
+                      << lat_data[lat_data.size() / 2] << " nsec; 95%=" << lat_data[index_95perc]
+                      << " nsec; 99%=" << lat_data[index_99perc] << " nsec; max=" << *lat_data.rbegin() << " nsec"
+                      << std::endl
+                      << "\t" << *lat_data.begin()<< " | "<< lat_data[lat_data.size() / 2]<< " | "<< lat_data[index_95perc] << " | "
+                      << lat_data[index_99perc] << " | "<< *lat_data.rbegin()<< std::endl;
+        }
+    }
+
 }
 
 int main(int argc, char **argv) {
@@ -240,6 +369,8 @@ int main(int argc, char **argv) {
     std::srand(random_seed);
 
     /*auto avg_timer_latency =*/ benchmark_get_timer();
+    benchmark_serialise_NewOrderSingle();
+    benchmark_parse_NewOrderSingle();
     benchmark_serialise_MDSubscription();
     benchmark_parse_MDSubscription();
     return 1;

@@ -32,6 +32,7 @@ namespace fix{
 
     public:
         bool get_bool(tag_id_t tag)const;
+        char get_char(tag_id_t tag)const;
         int get_int(tag_id_t tag)const;
         const FIXDouble &get_double(tag_id_t tag)const;
         const FIXString &get_string(tag_id_t tag)const;
@@ -42,6 +43,7 @@ namespace fix{
         FIXGroup &get_group(tag_id_t tag);
 
         bool set_bool(tag_id_t tag, bool val);
+        bool set_char(tag_id_t tag, char val);
         bool set_int(tag_id_t tag, int val);
         bool set_double(tag_id_t tag, const FIXDouble &val);
         bool set_string(tag_id_t tag, const FIXString &val);
@@ -60,7 +62,7 @@ namespace fix{
 
         // data
         std::string buffer_;
-        std::vector<char> tag_bool_values_;
+        std::vector<char> tag_char_values_;
         std::vector<int> tag_int_values_;
         std::vector<FIXDouble> tag_double_values_;
         std::vector<FIXString> tag_string_values_;

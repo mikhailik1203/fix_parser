@@ -62,7 +62,7 @@ namespace{
 FIXMessage::FIXMessage(const FIXMessageMetadata &meta): meta_(meta){
     const auto &name = meta_.name();
     type_ = FIXMsgType(name.c_str(), name.size());
-    tag_bool_values_.resize(meta_.tag_bool_count());
+    tag_char_values_.resize(meta_.tag_char_count());
     tag_int_values_.resize(meta_.tag_int_count());
     tag_double_values_.resize(meta_.tag_double_count());
     tag_string_values_.resize(meta_.tag_string_count());
@@ -83,7 +83,7 @@ FIXMessage::FIXMessage(const FIXMessageMetadata &meta): meta_(meta){
 FIXMessage::FIXMessage(FIXMessage &&val): meta_(val.meta_){
     std::swap(type_, val.type_);
     std::swap(buffer_, val.buffer_);
-    std::swap(tag_bool_values_, val.tag_bool_values_);
+    std::swap(tag_char_values_, val.tag_char_values_);
     std::swap(tag_int_values_, val.tag_int_values_);
     std::swap(tag_double_values_, val.tag_double_values_);
     std::swap(tag_string_values_, val.tag_string_values_);
@@ -115,7 +115,11 @@ FIXTagType FIXMessage::tag_type(tag_id_t tag)const{
 }
 
 bool FIXMessage::get_bool(tag_id_t tag)const{
-    return 'Y' == get_value<char>(meta_, tag_bool_values_, available_tags_, FIXTagType::BOOL, tag);
+    return 'Y' == get_value<char>(meta_, tag_char_values_, available_tags_, FIXTagType::BOOL, tag);
+}
+
+char FIXMessage::get_char(tag_id_t tag)const{
+    return get_value<char>(meta_, tag_char_values_, available_tags_, FIXTagType::CHAR, tag);
 }
 
 int FIXMessage::get_int(tag_id_t tag)const{
@@ -161,7 +165,11 @@ FIXGroup &FIXMessage::get_group(tag_id_t tag){
 }
 
 bool FIXMessage::set_bool(tag_id_t tag, bool val){
-    return ::set_value(meta_, tag_bool_values_, available_tags_, FIXTagType::BOOL, tag, (val)?('Y'):('N'));
+    return ::set_value(meta_, tag_char_values_, available_tags_, FIXTagType::BOOL, tag, (val)?('Y'):('N'));
+}
+
+bool FIXMessage::set_char(tag_id_t tag, char val){
+    return ::set_value(meta_, tag_char_values_, available_tags_, FIXTagType::CHAR, tag, val);
 }
 
 bool FIXMessage::set_int(tag_id_t tag, int val){
@@ -197,7 +205,11 @@ bool FIXMessage::set_value(const TagMetadata &tag_meta, tag_id_t tag, std::strin
     switch(tag_meta.type_){
         case FIXTagType::BOOL:{
             bool v = (1 == val.size()) && ('Y' == *val.begin());
-            return ::set_value(tag_meta, tag_bool_values_, available_tags_, tag, (v)?('Y'):('N'));
+            return ::set_value(tag_meta, tag_char_values_, available_tags_, tag, (v)?('Y'):('N'));
+        }   
+        break;
+        case FIXTagType::CHAR:{
+            return ::set_value(tag_meta, tag_char_values_, available_tags_, tag, *val.begin());
         }   
         break;
         case FIXTagType::RAWDATALEN:

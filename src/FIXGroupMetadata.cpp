@@ -31,21 +31,21 @@ FIXGroupMetadata::FIXGroupMetadata(tag_id_t leading_tag_id, const FIXDictionary 
     for(auto [pos_type, pos_index]: msg_positions){
         switch(pos_type){
             case PositionType::tag:{
-                assert(pos_index < msg_tags.size());
+                assert(static_cast<size_t>(pos_index) < msg_tags.size());
                 auto tag_id = msg_tags[pos_index];
                 assert(0 < tag_id);
                 process_tag(dict, vocab, tag_id);
             }
             break;
             case PositionType::block:{
-                assert(pos_index < msg_blocks.size());
+                assert(static_cast<size_t>(pos_index) < msg_blocks.size());
                 auto block_id = msg_blocks[pos_index];
                 assert(0 < block_id);
                 process_block(dict, vocab, block_id);
             }
             break;
             case PositionType::group:{
-                assert(pos_index < msg_groups.size());
+                assert(static_cast<size_t>(pos_index) < msg_groups.size());
                 auto grp_tag_id = msg_groups[pos_index];
                 assert(0 < grp_tag_id);
                 size_t value_index = tag_group_values_.size();
@@ -89,7 +89,8 @@ void FIXGroupMetadata::process_tag(const FIXDictionary &dict, const FIXTagVocabu
     size_t value_index = 0;
     switch(tag_type){
         case FIXTagType::BOOL:
-            value_index = tag_bool_count_++;
+        case FIXTagType::CHAR:
+            value_index = tag_char_count_++;
         break;
         case FIXTagType::RAWDATALEN:
         case FIXTagType::INT:
@@ -136,7 +137,7 @@ void FIXGroupMetadata::process_block(const FIXDictionary &dict, const FIXTagVoca
     for(auto [pos_type, pos_index]: blk_positions){
         switch(pos_type){
             case PositionType::tag:{
-                assert(pos_index < blk_tags.size());
+                assert(static_cast<size_t>(pos_index) < blk_tags.size());
                 auto tag_id = blk_tags[pos_index];
                 assert(0 < tag_id);
                 process_tag(dict, vocab, tag_id);
@@ -144,7 +145,7 @@ void FIXGroupMetadata::process_block(const FIXDictionary &dict, const FIXTagVoca
             break;
             case PositionType::block:{
                 const auto &blk_blocks = block_it->second.blocks();
-                assert(pos_index < blk_blocks.size());
+                assert(static_cast<size_t>(pos_index) < blk_blocks.size());
                 auto block_id = blk_blocks[pos_index];
                 assert(0 < block_id);
                 process_block(dict, vocab, block_id);
@@ -152,7 +153,7 @@ void FIXGroupMetadata::process_block(const FIXDictionary &dict, const FIXTagVoca
             break;
             case PositionType::group:{
                 const auto &blk_groups = block_it->second.groups();
-                assert(pos_index < blk_groups.size());
+                assert(static_cast<size_t>(pos_index) < blk_groups.size());
                 auto grp_tag_id = blk_groups[pos_index];
                 assert(0 < grp_tag_id);
                 size_t value_index = tag_group_values_.size();
@@ -188,7 +189,7 @@ void FIXGroupMetadata::serialize(const FIXGroupEntry &data, std::vector<char> &b
         buffer.insert(buffer.end(), tag_meta.tag_prefix_.begin(), tag_meta.tag_prefix_.end());
         switch(tag_meta.type_){
             case FIXTagType::BOOL:{
-                const auto &val = data.tag_bool_values_[tag_meta.value_index_];                
+                const auto &val = data.tag_char_values_[tag_meta.value_index_];                
                 buffer.push_back(val);
                 buffer.push_back(1);
             }

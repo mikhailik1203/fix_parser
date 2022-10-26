@@ -60,7 +60,7 @@ namespace{
 FIXGroupEntry::FIXGroupEntry(const FIXGroupMetadata &meta): 
     meta_(meta)
 {
-    tag_bool_values_.resize(meta_.tag_bool_count());
+    tag_char_values_.resize(meta_.tag_char_count());
     tag_int_values_.resize(meta_.tag_int_count());
     tag_double_values_.resize(meta_.tag_double_count());
     tag_string_values_.resize(meta_.tag_string_count());
@@ -81,7 +81,7 @@ FIXGroupEntry::FIXGroupEntry(const FIXGroupMetadata &meta):
 
 FIXGroupEntry::FIXGroupEntry(FIXGroupEntry &&val): meta_(val.meta_){
     std::swap(buffer_, val.buffer_);
-    std::swap(tag_bool_values_, val.tag_bool_values_);
+    std::swap(tag_char_values_, val.tag_char_values_);
     std::swap(tag_int_values_, val.tag_int_values_);
     std::swap(tag_double_values_, val.tag_double_values_);
     std::swap(tag_string_values_, val.tag_string_values_);
@@ -106,7 +106,11 @@ FIXTagType FIXGroupEntry::tag_type(tag_id_t tag)const{
 }
 
 bool FIXGroupEntry::get_bool(tag_id_t tag)const{
-    return 'Y' == get_value<char>(meta_, tag_bool_values_, available_tags_, FIXTagType::BOOL, tag);
+    return 'Y' == get_value<char>(meta_, tag_char_values_, available_tags_, FIXTagType::BOOL, tag);
+}
+
+char FIXGroupEntry::get_char(tag_id_t tag)const{
+    return 'Y' == get_value<char>(meta_, tag_char_values_, available_tags_, FIXTagType::CHAR, tag);
 }
 
 int FIXGroupEntry::get_int(tag_id_t tag)const{
@@ -152,7 +156,11 @@ FIXGroup &FIXGroupEntry::get_group(tag_id_t tag){
 }
 
 bool FIXGroupEntry::set_bool(tag_id_t tag, bool val){
-    return ::set_value(meta_, tag_bool_values_, available_tags_, FIXTagType::BOOL, tag, (val)?('Y'):('N'));
+    return ::set_value(meta_, tag_char_values_, available_tags_, FIXTagType::BOOL, tag, (val)?('Y'):('N'));
+}
+
+bool FIXGroupEntry::set_char(tag_id_t tag, char val){
+    return ::set_value(meta_, tag_char_values_, available_tags_, FIXTagType::CHAR, tag, val);
 }
 
 bool FIXGroupEntry::set_int(tag_id_t tag, int val){
@@ -181,7 +189,11 @@ bool FIXGroupEntry::set_value(const TagMetadata &tag_meta, tag_id_t tag, std::st
     switch(tag_meta.type_){
         case FIXTagType::BOOL:{
             bool v = (1 == val.size()) && ('Y' == *val.begin());
-            return ::set_value(tag_meta, tag_bool_values_, available_tags_, tag, (v)?('Y'):('N'));
+            return ::set_value(tag_meta, tag_char_values_, available_tags_, tag, (v)?('Y'):('N'));
+        }   
+        break;
+        case FIXTagType::CHAR:{
+            return ::set_value(tag_meta, tag_char_values_, available_tags_, tag, *val.begin());
         }   
         break;
         case FIXTagType::INT:
