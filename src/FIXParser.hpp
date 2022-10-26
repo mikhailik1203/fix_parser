@@ -6,7 +6,7 @@
 namespace fix{
     class FIXParser{
     public:
-        FIXParser(const FIXDictionary &dict);
+        explicit FIXParser(const FIXDictionary &dict);
         ~FIXParser() = default;
 
         FIXParser(const FIXParser &) = delete;
@@ -14,6 +14,7 @@ namespace fix{
         FIXParser(FIXParser &&) = delete;
         FIXParser &operator=(FIXParser &&) = delete;
 
+        FIXMessage create(const std::string &type_name)const;
         FIXMessage parse(const FIXMsgBuffer &msg_buffer);
         static FIXMsgBuffer serialize(const FIXMessage &msg, bool update_header = true, bool update_trailer = true);
 

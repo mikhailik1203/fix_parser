@@ -17,3 +17,5 @@ add_executable(FIXParserBenchmark ./benchmarks/bench_test.cpp)
 
 target_link_libraries(FIXParserTest gtest pthread FIXParser)
 
+target_link_libraries(FIXParserBenchmark pthread FIXParser)
+

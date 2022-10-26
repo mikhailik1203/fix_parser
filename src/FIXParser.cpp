@@ -9,6 +9,14 @@ FIXParser::FIXParser(const FIXDictionary &dict){
     }
 }
 
+FIXMessage FIXParser::create(const std::string &type_name)const{
+    auto meta_it = msg_metadata_.find(type_name);
+    if(msg_metadata_.end() == meta_it){
+        throw std::runtime_error("Unable to create message - uknown message type!");
+    }
+    return meta_it->second.create();
+}
+
 FIXMessage FIXParser::parse(const FIXMsgBuffer &msg_buffer){
     const std::string_view &type_val = msg_buffer.type().type_value().to_string();
     auto meta_it = msg_metadata_.find(std::string(type_val));
