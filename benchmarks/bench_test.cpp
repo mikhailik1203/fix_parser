@@ -17,7 +17,7 @@ namespace {
     const uint64_t BENCHMARK_DATA_COUNT = 100000;
     const int CACHE_SIZE = 1000;
 #else
-    const uint64_t BENCHMARK_DATA_COUNT = 100000; //10000000
+    const uint64_t BENCHMARK_DATA_COUNT = 1000000; //10000000
     const int CACHE_SIZE = 1000;
 #endif
 
