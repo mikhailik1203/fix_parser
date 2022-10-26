@@ -13,8 +13,8 @@ namespace fix{
                             location_id_t location_id, const SupportedTagsT &tags, 
                             const SupportedBlocksT &blocks, const SupportedGroupsT &groups,
                             const PositionsT &positions): 
-            tags_(tags), blocks_(blocks), groups_(groups), leading_tag_id_(leading_tag_id), 
-            entry_start_tag_id_(entry_start_tag_id), location_id_(location_id), positions_(positions)
+            tags_(tags), blocks_(blocks), groups_(groups), positions_(positions), leading_tag_id_(leading_tag_id), 
+            entry_start_tag_id_(entry_start_tag_id), location_id_(location_id)
         {}
 
         // returns leading tag of the group

@@ -15,16 +15,17 @@ namespace fix{
     // Contains FIX message template: structure, containers with values for tags and groups
     class FIXMessageMetadata{
     public:
+        FIXMessageMetadata();
         FIXMessageMetadata(const std::string &name, const FIXDictionary &dict);
 
         FIXProtocol protocol()const noexcept{return protocol_;}
         const std::string &name()const noexcept{return name_;}
         location_id_t location_id()const noexcept{return location_id_;}
 
-        // creates empty instance of group
+        // creates empty instance of FIX message
         FIXMessage create()const;
 
-        // creates instance of group from FIX message
+        // creates instance of FIX message from raw text
         FIXMessage parse(MsgReceived &data)const;
 
     public:
@@ -74,4 +75,6 @@ namespace fix{
     };
 
     using FIXMsgMetadatasT = std::unordered_map<std::string, FIXMessageMetadata>;
+
+    const FIXMessageMetadata DUMMY_FIXMSG_METADATA;
 }

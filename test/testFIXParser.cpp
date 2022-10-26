@@ -31,7 +31,7 @@ TEST(TestFIXParser, serialize_UT1){
     EXPECT_EQ("UT1", res.type().type_value().to_string());
     EXPECT_EQ(128, res.length());
     EXPECT_EQ("8=FIX.TEST\x1" "9=104\x1" "35=UT1\x1" "1=111\x1" "4=Y\x1" "7=123.456\x1" "13=Test string value\x1" 
-            "16=20221024\x1" "19=20221024 12:45:56\x1" "22=13\x1" "23=\x1\x2raw data \x1\x2\x1" "10=000\x1", 
+            "16=20221024\x1" "19=20221024 12:45:56\x1" "22=13\x1" "23=\x1\x2raw data \x1\x2\x1" "10=055\x1", 
                 std::string_view(res.buffer(), res.length()));
 }
 

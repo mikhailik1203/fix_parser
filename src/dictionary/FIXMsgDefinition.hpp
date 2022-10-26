@@ -12,7 +12,7 @@ namespace fix{
         FIXMsgDefinition(FIXProtocol protocol, const std::string &name, location_id_t location_id, 
                          const SupportedTagsT &tags, const SupportedBlocksT &blocks, 
                          const SupportedGroupsT &groups, const PositionsT &positions): 
-            name_(name), protocol_(protocol), tags_(tags), blocks_(blocks), groups_(groups), location_id_(location_id), positions_(positions)
+            name_(name), protocol_(protocol), tags_(tags), blocks_(blocks), groups_(groups), positions_(positions), location_id_(location_id)
         {}
 
         FIXProtocol protocol()const noexcept{return protocol_;}

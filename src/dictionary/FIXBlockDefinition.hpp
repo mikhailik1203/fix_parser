@@ -9,8 +9,9 @@ namespace fix{
     // Contains definition of the FIX block - structure, tags, subgroups, etc
     class FIXBlockDefinition{
     public:
-        FIXBlockDefinition(location_id_t block_id, const SupportedTagsT &tags, const SupportedBlocksT &blocks, const SupportedGroupsT &groups, const PositionsT &positions): 
-                block_id_(block_id), tags_(tags), blocks_(blocks), groups_(groups), positions_(positions){}
+        FIXBlockDefinition(location_id_t block_id, const SupportedTagsT &tags, 
+                        const SupportedBlocksT &blocks, const SupportedGroupsT &groups, const PositionsT &positions): 
+                tags_(tags), blocks_(blocks), groups_(groups), positions_(positions), block_id_(block_id){}
 
         location_id_t block_id()const noexcept{return block_id_;}
 

@@ -24,7 +24,7 @@ namespace fix{
         UserDefined
     };
 
-    using tag_id_t = int32_t;
+    using tag_id_t = uint32_t;
     using location_id_t = int32_t;
     using block_id_t = int32_t;
     using entry_id_t = uint32_t;
@@ -73,6 +73,7 @@ namespace fix{
     // contains data buffer with FIX message and preparsed FIX parameters, used to construct FIXMessage
     struct FIXMsgBuffer{
     public:
+        static FIXMsgBuffer create_dummy();
         static FIXMsgBuffer create(const char *buffer, uint32_t length);
         static FIXMsgBuffer create(std::vector<char> &&data, size_t start_pos, const FIXMsgType &type, const FIXProtocol &protocol);
 

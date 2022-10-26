@@ -8,7 +8,13 @@
 
 using namespace fix;
 
+FIXMessageMetadata::FIXMessageMetadata(): name_(), protocol_(FIXProtocol::invalid), location_id_(0){
+}
+
 FIXMessageMetadata::FIXMessageMetadata(const std::string &name, const FIXDictionary &dict): name_(name), protocol_(dict.protocol()){
+    if(name_.empty())
+        return;
+
     const auto &msgs = dict.messages();
     auto msg_it = msgs.find(name);
     if(msgs.end() == msg_it)
@@ -109,7 +115,8 @@ void FIXMessageMetadata::process_tag(const FIXDictionary &dict, const FIXTagVoca
             tag_group_values_.emplace_back(FIXGroupMetadata(tag_id, dict));
         break;
         default:
-            throw std::runtime_error("FIXMessageMetadata::process_tag: Type for tag [" + std::to_string(tag_id) + "] is not supported!" );
+            assert(false && "FIXMessageMetadata::process_tag: Tag's type is not supported!" );
+            return;
     }
     auto tag_position_idx = tag_metadata_.size();        
     tag_to_meta_idx_[tag_id] = tag_position_idx;

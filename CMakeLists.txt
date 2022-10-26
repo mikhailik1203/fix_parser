@@ -4,6 +4,8 @@ project(FIXParser)
 set(CMAKE_CXX_STANDARD 17)
 add_compile_definitions(__GCC__)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
+
 add_library(FIXParser STATIC ./src/FIXParser.cpp ./src/FIXMsgBuffer.cpp ./src/FIXParserDefines.cpp ./src/FIXMessageMetadata.cpp
         ./src/FIXGroupMetadata.cpp ./src/FIXGroup.cpp ./src/FIXGroupEntry.cpp ./src/Utils.cpp ./src/FIXMessage.cpp
         ./src/dictionary/FIX44Builder.cpp ./src/dictionary/FIXBlockDefinition.cpp ./src/dictionary/FIXGroupDefinition.cpp

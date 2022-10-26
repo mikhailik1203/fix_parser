@@ -71,4 +71,5 @@ namespace fix{
         BitMask available_tags_;
     };
 
+    const FIXMessage DUMMY_FIX_MESSAGE(DUMMY_FIXMSG_METADATA);
 }

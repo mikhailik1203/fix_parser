@@ -21,6 +21,10 @@ namespace{
     const int MIN_MSG_LEN = MSG_PREFIX_LEN + 5 + MSG_CRC_LEN; //minimal msg body is '35=xSOH', 5 bytes
 }
 
+FIXMsgBuffer FIXMsgBuffer::create_dummy(){
+    return FIXMsgBuffer();
+}
+
 FIXMsgBuffer FIXMsgBuffer::create(const char *buffer, uint32_t length){
     FIXMsgBuffer data;
     bool len_valid = MIN_MSG_LEN < length;

@@ -212,7 +212,7 @@ bool FIXGroupEntry::set_value(const TagMetadata &tag_meta, tag_id_t tag, std::st
         }
         break;
         case FIXTagType::GROUP:{
-            throw std::runtime_error("FIXGroupEntry::set_value: not implemented for group!" );
+            assert( false && "FIXGroupEntry::set_value: not implemented for group!" );
             return false;
         }
         break;

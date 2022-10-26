@@ -239,7 +239,7 @@ int main(int argc, char **argv) {
     int random_seed = 123456789; /// use predefined generator to test same sequence on each run
     std::srand(random_seed);
 
-    auto avg_timer_latency = benchmark_get_timer();
+    /*auto avg_timer_latency =*/ benchmark_get_timer();
     benchmark_serialise_MDSubscription();
     benchmark_parse_MDSubscription();
     return 1;

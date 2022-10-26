@@ -70,4 +70,6 @@ namespace fix{
         std::vector<FIXGroup> tag_group_values_;
         BitMask available_tags_;
     };
+
+    static FIXGroupEntry DUMMY_GROUP_ENTRY(DUMMY_GROUP_METADATA);
 }

@@ -1,6 +1,8 @@
 #include "FIXParser.hpp"
 #include "./dictionary/FIXDictionary.hpp"
 
+#include <cassert>
+
 using namespace fix;
 
 FIXParser::FIXParser(const FIXDictionary &dict){
@@ -12,7 +14,7 @@ FIXParser::FIXParser(const FIXDictionary &dict){
 FIXMessage FIXParser::create(const std::string &type_name)const{
     auto meta_it = msg_metadata_.find(type_name);
     if(msg_metadata_.end() == meta_it){
-        throw std::runtime_error("Unable to create message - uknown message type!");
+        return FIXMessage(DUMMY_FIXMSG_METADATA);
     }
     return meta_it->second.create();
 }
@@ -21,7 +23,7 @@ FIXMessage FIXParser::parse(const FIXMsgBuffer &msg_buffer){
     const std::string_view &type_val = msg_buffer.type().type_value().to_string();
     auto meta_it = msg_metadata_.find(std::string(type_val));
     if(msg_metadata_.end() == meta_it){
-        throw std::runtime_error("Unable to parse message - uknown message!");
+        return FIXMessage(DUMMY_FIXMSG_METADATA);
     }
     MsgReceived msg_data{msg_buffer.buffer(), 0, "", 0};
     return meta_it->second.parse(msg_data);
@@ -29,7 +31,9 @@ FIXMessage FIXParser::parse(const FIXMsgBuffer &msg_buffer){
 
 FIXMsgBuffer FIXParser::serialize(const FIXMessage &msg, bool update_header, bool update_trailer){
     const size_t PREFIX_SIZE = 36;
+    const size_t BUFFER_SIZE = 256;
     std::vector<char> buffer(PREFIX_SIZE, 0);
+    buffer.reserve(BUFFER_SIZE);
     msg.serialize(buffer);
     // add message prefix 8 and 9 tag, add suffix - tag 10
     //  '8=FIX.4.4<SOH>9=<number bytes><SOH>....10=xxx<SOH>'
@@ -59,11 +63,25 @@ FIXMsgBuffer FIXParser::serialize(const FIXMessage &msg, bool update_header, boo
         }
         break;
         default:
-            throw std::runtime_error("Unable to serialize message - uknown protocol!");
+            assert(false && "Unable to serialize message - uknown protocol!");
+            return FIXMsgBuffer::create_dummy();
     }
-    const char suffix[] = "10=000\001";
-    // calculate CheckSumm value and update suffix
+
+    char suffix[] = "10=000\001";
     const size_t suffix_len = 7;
+    { /// calculate CRC summ and update suffix buffer
+        unsigned crc = 0;
+        for(size_t pos = msg_start; pos != buffer.size(); ++pos){
+            crc += buffer[pos];
+        }
+        crc = crc%256;
+        suffix[5] += crc % 10;
+        crc = crc / 10;
+        suffix[4] += crc % 10;
+        crc = crc / 10;
+        suffix[3] += crc % 10;
+        crc = crc / 10;
+    }
     buffer.insert(buffer.end(), suffix, suffix + suffix_len); 
     return FIXMsgBuffer::create(std::move(buffer), msg_start, msg.message_type(), msg.protocol());
 }

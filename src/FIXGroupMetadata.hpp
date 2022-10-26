@@ -40,8 +40,8 @@ namespace fix{
 
         std::vector<FIXGroup> create_nested()const;
     public:
-        bool support_tag(tag_id_t tag)const;
-        FIXTagType tag_type(tag_id_t tag)const;
+        bool support_tag(tag_id_t tag)const noexcept;
+        FIXTagType tag_type(tag_id_t tag)const noexcept;
 
         size_t tag_bool_count()const noexcept{return tag_bool_count_;}
         size_t tag_int_count()const noexcept{return tag_int_count_;}

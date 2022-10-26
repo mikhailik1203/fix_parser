@@ -227,11 +227,12 @@ bool FIXMessage::set_value(const TagMetadata &tag_meta, tag_id_t tag, std::strin
         }
         break;
         case FIXTagType::GROUP:{
-            throw std::runtime_error("FIXGroupEntry::set_value: not implemented!" );
+            assert(false && "FIXGroupEntry::set_value: not implemented for group!" );
             return false;
         }
         break;
         default:
+            assert(false && "FIXGroupEntry::set_value: unknown tag's type!" );
             return false;
     };
     return true;

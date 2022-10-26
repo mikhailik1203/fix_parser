@@ -61,11 +61,11 @@ FIXGroupMetadata::FIXGroupMetadata(tag_id_t leading_tag_id, const FIXDictionary 
     }
 }
 
-bool FIXGroupMetadata::support_tag(tag_id_t tag)const{
+bool FIXGroupMetadata::support_tag(tag_id_t tag)const noexcept{
     return tag_to_meta_idx_.end() != tag_to_meta_idx_.find(tag);
 }
 
-FIXTagType FIXGroupMetadata::tag_type(tag_id_t tag)const{
+FIXTagType FIXGroupMetadata::tag_type(tag_id_t tag)const noexcept{
     auto it = tag_to_meta_idx_.find(tag);
     if(tag_to_meta_idx_.end() != it){
         return tag_metadata_[it->second].type_;
@@ -115,7 +115,8 @@ void FIXGroupMetadata::process_tag(const FIXDictionary &dict, const FIXTagVocabu
             tag_group_values_.emplace_back(FIXGroupMetadata(tag_id, dict));
         break;
         default:
-            throw std::runtime_error("FIXGroupMetadata::process_tag: Type for tag [" + std::to_string(tag_id) + "] is not supported!" );
+            assert(false && "FIXGroupMetadata::process_tag: Tag's type is not supported!");
+            return;
     }
     auto tag_position_idx = tag_metadata_.size();        
     tag_to_meta_idx_[tag_id] = tag_position_idx;
@@ -162,7 +163,7 @@ void FIXGroupMetadata::process_block(const FIXDictionary &dict, const FIXTagVoca
             }
             break;
             default:
-                throw std::runtime_error("FIXGroupMetadata::process_block: Unknown PositionType!");
+                assert( false && "FIXGroupMetadata::process_block: Unknown PositionType!");
         };
     }
 }
@@ -236,8 +237,7 @@ void FIXGroupMetadata::serialize(const FIXGroupEntry &data, std::vector<char> &b
             }
             break;
             default:
-                throw std::runtime_error("FIXGroupMetadata::serialize: Type for tag [" + 
-                        std::to_string(tag_meta.tag_id_) + "] is not supported!" );
+                assert(false && "FIXGroupMetadata::serialize: Tag's type is not supported!" );
         };
     }
 }
@@ -331,25 +331,6 @@ FIXGroup FIXGroupMetadata::parse(MsgReceived &data)const{
         if(!process_entry(tag_id, data, entry, grp)){
             return grp;
         }
-        /*do{
-            tag_id = data.current_tag_id();
-            if(0 == tag_id || !data.error_.empty())
-                return grp;
-            if(entry_start_tag_id_ != tag_id){
-                auto meta_it = tag_to_meta_idx_.find(tag_id);
-                if(tag_to_meta_idx_.end() == meta_it){
-                    return grp; // tag_id is not related to this group - finished parsing this group
-                }
-                const auto &meta_data = tag_metadata_[meta_it->second];
-                auto val = data.parse_value();
-                if(!data.error_.empty())
-                    return grp;
-
-                if (!set_tag_value(meta_data, tag_id, val, data, entry, grp)){
-                    return grp;
-                }
-            }
-        }while (entry_start_tag_id_ != tag_id);*/
     }
     return grp;
 }
@@ -380,30 +361,13 @@ bool FIXGroupMetadata::parse(MsgReceived &data, FIXGroup &grp, size_t entry_coun
         if(!process_entry(tag_id, data, entry, grp)){
             return true;
         }
-        /*do{
-            tag_id = data.current_tag_id();
-            if(0 == tag_id || !data.error_.empty())
-                return false;
-            if(entry_start_tag_id_ != tag_id){
-                auto meta_it = tag_to_meta_idx_.find(tag_id);
-                if(tag_to_meta_idx_.end() == meta_it){
-                    return true; // tag_id is not related to this group - finished parsing this group
-                }
-                const auto &meta_data = tag_metadata_[meta_it->second];
-                auto val = data.parse_value();
-                if(!data.error_.empty())
-                    return false;
-                if (!set_tag_value(meta_data, tag_id, val, data, entry, grp)){
-                    return true;
-                }
-            }
-        }while (entry_start_tag_id_ != tag_id);*/
     }
     return false;
 }
 
 std::vector<FIXGroup> FIXGroupMetadata::create_nested()const{
     std::vector<FIXGroup> groups;
+    groups.reserve(tag_group_values_.size());
     for(const auto &grp_meta: tag_group_values_){
         groups.emplace_back(grp_meta, 0);
     }
