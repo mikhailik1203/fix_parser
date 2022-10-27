@@ -20,6 +20,7 @@ FIXMessageMetadata::FIXMessageMetadata(const std::string &name, const FIXDiction
     if(msgs.end() == msg_it)
         throw std::runtime_error("FIXMessageMetadata: Message name [" + name + "] is not found in FIXDictionaty!" );
 
+    msgtype_ = "35=" + name + "\001";
     location_id_ = msg_it->second.location_id();
     const auto &msg_tags = msg_it->second.tags();
     const auto &msg_blocks = msg_it->second.blocks();
@@ -121,7 +122,7 @@ void FIXMessageMetadata::process_tag(const FIXDictionary &dict, const FIXTagVoca
     }
     auto tag_position_idx = tag_metadata_.size();        
     tag_to_meta_idx_[tag_id] = tag_position_idx;
-    std::string tag_prefix = std::to_string(tag_id) + "=";
+    std::string tag_prefix = fix::to_tag_prefix(tag_id);
     tag_metadata_.emplace_back(TagMetadata{tag_id, tag_type, value_index, tag_position_idx, tag_prefix});
 }
 
@@ -179,10 +180,7 @@ FIXMessage FIXMessageMetadata::create()const{
 
 void FIXMessageMetadata::serialize(const FIXMessage &data, std::vector<char> &buffer)const{
     // add MsgType tag and value
-    buffer.insert(buffer.end(), {'3', '5', '='});
-    buffer.insert(buffer.end(), name().begin(), name().end());
-    buffer.push_back(1);
-
+    buffer.insert(buffer.end(), msgtype_.begin(), msgtype_.end());
     for(const auto &tag_meta: tag_metadata_){
         if(!data.available_tags_.is_set(tag_meta.tag_position_)){
             continue;
@@ -203,32 +201,37 @@ void FIXMessageMetadata::serialize(const FIXMessage &data, std::vector<char> &bu
             }   
             break;
             case FIXTagType::DOUBLE:{
-                const auto &val = data.tag_double_values_[tag_meta.value_index_];                
-                buffer.insert(buffer.end(), val.to_string().begin(), val.to_string().end());
+                const auto &val = data.tag_double_values_[tag_meta.value_index_];
+                const auto &str_val = val.to_string();
+                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
                 buffer.push_back(1);
             }
             break;
             case FIXTagType::STRING:{
-                const auto &val = data.tag_string_values_[tag_meta.value_index_];                
-                buffer.insert(buffer.end(), val.to_string().begin(), val.to_string().end());
+                const auto &val = data.tag_string_values_[tag_meta.value_index_];
+                const auto &str_val = val.to_string();
+                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
                 buffer.push_back(1);
             }
             break;
             case FIXTagType::DATE:{
-                const auto &val = data.tag_date_values_[tag_meta.value_index_];                
-                buffer.insert(buffer.end(), val.to_string().begin(), val.to_string().end());
+                const auto &val = data.tag_date_values_[tag_meta.value_index_];
+                const auto &str_val = val.to_string();
+                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
                 buffer.push_back(1);
             }
             break;
             case FIXTagType::DATETIME:{
-                const auto &val = data.tag_datetime_values_[tag_meta.value_index_];                
-                buffer.insert(buffer.end(), val.to_string().begin(), val.to_string().end());
+                const auto &val = data.tag_datetime_values_[tag_meta.value_index_];
+                const auto &str_val = val.to_string();
+                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
                 buffer.push_back(1);
             }
             break;
             case FIXTagType::RAWDATA:{
-                const auto &val = data.tag_rawdata_values_[tag_meta.value_index_];                
-                buffer.insert(buffer.end(), val.to_string().begin(), val.to_string().end());
+                const auto &val = data.tag_rawdata_values_[tag_meta.value_index_];
+                const auto &str_val = val.to_string();
+                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
                 buffer.push_back(1);
             }
             break;
@@ -271,7 +274,7 @@ bool FIXMessageMetadata::set_tag_value(const fix::TagMetadata &meta_data, size_t
         }
     }else{
         const auto &grp_meta = tag_group_values_[meta_data.value_index_];
-        grp_meta.parse(data, msg.get_group(tag_id), string_to_int(val));
+        grp_meta.parse(data, msg.get_group(tag_id), string_to_int_positive(val));
     }
     return true;
 }

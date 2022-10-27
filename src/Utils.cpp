@@ -4,12 +4,52 @@
 
 namespace fix{
     void to_string(int val, std::vector<char> &buffer){
-        std::string str = std::to_string(val);
-        buffer.insert(buffer.end(), str.begin(), str.end());
-        buffer.push_back(1);
+        if(0 == val){
+            buffer.push_back('0');
+            buffer.push_back(1);
+            return;
+        }
+        char buf[16];
+        int pos = 0;
+        if(val < 0){
+            buf[pos++] = '-';
+            val *= -1;
+        }
+        if(val >= 1000000000){
+            pos += 10;
+        }else if(val >= 100000000){
+            pos += 9;
+        }else if(val >= 10000000){
+            pos += 8;
+        }else if(val >= 1000000){
+            pos += 7;
+        }else if(val >= 100000){
+            pos += 6;
+        }else if(val >= 10000){
+            pos += 5;
+        }else if(val >= 1000){
+            pos += 4;
+        }else if(val >= 100){
+            pos += 3;
+        }else if(val >= 10){
+            pos += 2;
+        }else{
+            pos += 1;
+        }
+        buf[pos--] = 1;
+        auto count = pos + 1;
+        while (0 < val){
+            buf[pos--] = '0' + val%10;
+            val /= 10;
+        }
+        buffer.insert(buffer.end(), buf, buf + count + 1);
     }
 
-    int string_to_int(const std::string_view &val){
+    std::string to_tag_prefix(int val){
+        return std::to_string(val) + "=";
+    }
+
+    int string_to_int_positive(const std::string_view &val){
         int res = 0;
         for(auto v: val){
             res = res*10 + (v - '0');
@@ -77,7 +117,7 @@ std::string_view MsgReceived::parse_value(){
 }
 
 std::string_view MsgReceived::parse_rawdata_value(const std::string_view &len_val){
-    auto raw_len = string_to_int(len_val);
+    auto raw_len = string_to_int_positive(len_val);
     curr_tag_id_ = 0;
     size_t start_pos_ = pos_;
     if(start_pos_ + raw_len < data_.size()){

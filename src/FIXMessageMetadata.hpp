@@ -55,6 +55,7 @@ namespace fix{
 
     private:
         std::string name_;
+        std::string msgtype_;
         FIXProtocol protocol_;
         location_id_t location_id_;
 
@@ -76,5 +77,5 @@ namespace fix{
 
     using FIXMsgMetadatasT = std::unordered_map<std::string, FIXMessageMetadata>;
 
-    const FIXMessageMetadata DUMMY_FIXMSG_METADATA;
+    static const FIXMessageMetadata DUMMY_FIXMSG_METADATA;
 }

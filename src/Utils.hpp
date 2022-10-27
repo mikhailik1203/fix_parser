@@ -40,6 +40,8 @@ namespace fix{
     // serialize val to the string and adds <SOH> to the end
     void to_string(int val, std::vector<char> &buffer);
 
+    std::string to_tag_prefix(int val);
+
     // parses val to the integer value
-    int string_to_int(const std::string_view &val);
+    int string_to_int_positive(const std::string_view &val);
 }

@@ -19,7 +19,7 @@ FIXGroupMetadata::FIXGroupMetadata(tag_id_t leading_tag_id, const FIXDictionary 
     leading_tag_id_ = leading_tag_id;
     entry_start_tag_id_ = grp_it->second.entry_tag();
     location_id_ = grp_it->second.location_id();
-    leading_tag_prefix_ = std::to_string(leading_tag_id_) + "=";
+    leading_tag_prefix_ = fix::to_tag_prefix(leading_tag_id_);
 
     const auto &msg_tags = grp_it->second.tags();
     const auto &msg_blocks = grp_it->second.blocks();
@@ -176,9 +176,7 @@ FIXGroup FIXGroupMetadata::create()const{
 
 void FIXGroupMetadata::serialize_group_size(size_t count,  std::vector<char> &buffer)const{
     buffer.insert(buffer.end(), leading_tag_prefix_.begin(), leading_tag_prefix_.end());
-    std::string val = std::to_string(count);
-    buffer.insert(buffer.end(), val.begin(), val.end());
-    buffer.push_back(1);
+    fix::to_string(count, buffer);
 }
 
 void FIXGroupMetadata::serialize(const FIXGroupEntry &data, std::vector<char> &buffer)const{
@@ -201,32 +199,37 @@ void FIXGroupMetadata::serialize(const FIXGroupEntry &data, std::vector<char> &b
             }   
             break;
             case FIXTagType::DOUBLE:{
-                const auto &val = data.tag_double_values_[tag_meta.value_index_];                
-                buffer.insert(buffer.end(), val.to_string().begin(), val.to_string().end());
+                const auto &val = data.tag_double_values_[tag_meta.value_index_];
+                const auto &str_val = val.to_string();
+                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
                 buffer.push_back(1);
             }
             break;
             case FIXTagType::STRING:{
                 const auto &val = data.tag_string_values_[tag_meta.value_index_];                
-                buffer.insert(buffer.end(), val.to_string().begin(), val.to_string().end());
+                const auto &str_val = val.to_string();
+                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
                 buffer.push_back(1);
             }
             break;
             case FIXTagType::DATE:{
                 const auto &val = data.tag_date_values_[tag_meta.value_index_];                
-                buffer.insert(buffer.end(), val.to_string().begin(), val.to_string().end());
+                const auto &str_val = val.to_string();
+                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
                 buffer.push_back(1);
             }
             break;
             case FIXTagType::DATETIME:{
-                const auto &val = data.tag_datetime_values_[tag_meta.value_index_];                
-                buffer.insert(buffer.end(), val.to_string().begin(), val.to_string().end());
+                const auto &val = data.tag_datetime_values_[tag_meta.value_index_];
+                const auto &str_val = val.to_string();
+                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
                 buffer.push_back(1);
             }
             break;
             case FIXTagType::RAWDATA:{
-                const auto &val = data.tag_rawdata_values_[tag_meta.value_index_];                
-                buffer.insert(buffer.end(), val.to_string().begin(), val.to_string().end());
+                const auto &val = data.tag_rawdata_values_[tag_meta.value_index_];
+                const auto &str_val = val.to_string();
+                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
                 buffer.push_back(1);
             }
             break;
@@ -270,7 +273,7 @@ bool FIXGroupMetadata::set_tag_value(const fix::TagMetadata &meta_data, size_t &
         }
     }else{
         const auto &grp_meta = tag_group_values_[meta_data.value_index_];
-        grp_meta.parse(data, entry.get_group(tag_id), string_to_int(val));
+        grp_meta.parse(data, entry.get_group(tag_id), string_to_int_positive(val));
     }
     return true;
 }
@@ -304,7 +307,7 @@ FIXGroup FIXGroupMetadata::parse(MsgReceived &data)const{
     if(leading_tag_id_ != lead_tag)
         return FIXGroup(*this, 0);
     auto count_val = data.parse_value();
-    size_t entry_count = string_to_int(count_val);
+    size_t entry_count = string_to_int_positive(count_val);
     FIXGroup grp(*this, entry_count);
     for(size_t i = 0; i < entry_count; ++i){
         size_t tag_id = data.current_tag_id();

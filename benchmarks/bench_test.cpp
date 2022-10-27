@@ -17,7 +17,7 @@ namespace {
     const uint64_t BENCHMARK_DATA_COUNT = 100000;
     const int CACHE_SIZE = 1000;
 #else
-    const uint64_t BENCHMARK_DATA_COUNT = 1000000; //10000000
+    const uint64_t BENCHMARK_DATA_COUNT = 100000; //10000000
     const int CACHE_SIZE = 1000;
 #endif
 
@@ -368,9 +368,11 @@ int main(int argc, char **argv) {
     int random_seed = 123456789; /// use predefined generator to test same sequence on each run
     std::srand(random_seed);
 
-    /*auto avg_timer_latency =*/ benchmark_get_timer();
+    /*auto avg_timer_latency = benchmark_get_timer();*/
+    // benchmark for plain message
     benchmark_serialise_NewOrderSingle();
     benchmark_parse_NewOrderSingle();
+    // benchmark for message with groups
     benchmark_serialise_MDSubscription();
     benchmark_parse_MDSubscription();
     return 1;
