@@ -7,7 +7,10 @@ using namespace fix;
 
 FIXParser::FIXParser(const FIXDictionary &dict){
     for(const auto &[msg_name, msg_def]: dict.messages()){
-        msg_metadata_.emplace(msg_name, FIXMessageMetadata{msg_name, dict});
+        msg_metadata_.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(msg_name),
+                std::forward_as_tuple(msg_name, dict));
     }
 }
 

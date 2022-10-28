@@ -14,7 +14,7 @@ namespace fix{
         void unset(size_t index);
         bool is_set(size_t index)const noexcept;
     private:
-        int64_t mask_ = 0;
+        uint64_t mask_ = 0;
     };
 
     // Helper class for parsing: contains buffer with application tags and values (tags 8, 9, 35 are excluded)

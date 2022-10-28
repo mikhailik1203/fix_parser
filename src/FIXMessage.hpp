@@ -58,19 +58,18 @@ namespace fix{
 
     private:
         const FIXMessageMetadata &meta_;
-        FIXMsgType type_;
 
         // data
-        std::string buffer_;
-        std::vector<char> tag_char_values_;
+        //std::string buffer_;
+        BitMask available_tags_;
         std::vector<int> tag_int_values_;
-        std::vector<FIXDouble> tag_double_values_;
         std::vector<FIXString> tag_string_values_;
+        std::vector<FIXGroup> tag_group_values_;
+        std::vector<char> tag_char_values_;
+        std::vector<FIXDouble> tag_double_values_;
         std::vector<FIXDate> tag_date_values_;
         std::vector<FIXDatetime> tag_datetime_values_;
         std::vector<FIXRawData> tag_rawdata_values_;
-        std::vector<FIXGroup> tag_group_values_;
-        BitMask available_tags_;
     };
 
     const FIXMessage DUMMY_FIX_MESSAGE(DUMMY_FIXMSG_METADATA);

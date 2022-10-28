@@ -61,16 +61,16 @@ namespace fix{
     private:
         const FIXGroupMetadata &meta_;
         // data
-        std::string buffer_;
-        std::vector<char> tag_char_values_;
+        BitMask available_tags_;        
         std::vector<int> tag_int_values_;
-        std::vector<FIXDouble> tag_double_values_;
         std::vector<FIXString> tag_string_values_;
+        std::vector<FIXGroup> tag_group_values_;
+        std::vector<char> tag_char_values_;
+        std::vector<FIXDouble> tag_double_values_;
         std::vector<FIXDate> tag_date_values_;
         std::vector<FIXDatetime> tag_datetime_values_;
         std::vector<FIXRawData> tag_rawdata_values_;
-        std::vector<FIXGroup> tag_group_values_;
-        BitMask available_tags_;
+        //std::string buffer_;
     };
 
     static FIXGroupEntry DUMMY_GROUP_ENTRY(DUMMY_GROUP_METADATA);

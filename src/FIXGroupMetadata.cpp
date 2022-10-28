@@ -49,8 +49,8 @@ FIXGroupMetadata::FIXGroupMetadata(tag_id_t leading_tag_id, const FIXDictionary 
                 auto grp_tag_id = msg_groups[pos_index];
                 assert(0 < grp_tag_id);
                 size_t value_index = tag_group_values_.size();
-                tag_group_values_.push_back(FIXGroupMetadata(grp_tag_id, dict));
-                auto tag_position_idx = tag_metadata_.size();        
+                auto tag_position_idx = tag_metadata_.size();                
+                tag_group_values_.push_back({FIXGroupMetadata(grp_tag_id, dict), tag_position_idx});
                 tag_to_meta_idx_[grp_tag_id] = tag_position_idx;
                 tag_metadata_.emplace_back(TagMetadata{grp_tag_id, FIXTagType::GROUP, value_index, tag_position_idx, ""});
             }
@@ -113,7 +113,7 @@ void FIXGroupMetadata::process_tag(const FIXDictionary &dict, const FIXTagVocabu
         break;
         case FIXTagType::GROUP:
             value_index = tag_group_values_.size();
-            tag_group_values_.emplace_back(FIXGroupMetadata(tag_id, dict));
+            tag_group_values_.emplace_back(FIXGroupMetadata(tag_id, dict), tag_metadata_.size());
         break;
         default:
             assert(false && "FIXGroupMetadata::process_tag: Tag's type is not supported!");
@@ -157,8 +157,8 @@ void FIXGroupMetadata::process_block(const FIXDictionary &dict, const FIXTagVoca
                 auto grp_tag_id = blk_groups[pos_index];
                 assert(0 < grp_tag_id);
                 size_t value_index = tag_group_values_.size();
-                tag_group_values_.push_back(FIXGroupMetadata(grp_tag_id, dict));
-                auto tag_position_idx = tag_metadata_.size();        
+                auto tag_position_idx = tag_metadata_.size();                        
+                tag_group_values_.push_back({FIXGroupMetadata(grp_tag_id, dict), tag_position_idx});
                 tag_to_meta_idx_[grp_tag_id] = tag_position_idx;
                 tag_metadata_.emplace_back(TagMetadata{grp_tag_id, FIXTagType::GROUP, value_index, tag_position_idx, ""});
             }
@@ -273,7 +273,7 @@ bool FIXGroupMetadata::set_tag_value(const fix::TagMetadata &meta_data, size_t &
         }
     }else{
         const auto &grp_meta = tag_group_values_[meta_data.value_index_];
-        grp_meta.parse(data, entry.get_group(tag_id), string_to_int_positive(val));
+        grp_meta.first.parse(data, entry.get_group(tag_id), string_to_int_positive(val));
     }
     return true;
 }
@@ -373,7 +373,7 @@ std::vector<FIXGroup> FIXGroupMetadata::create_nested()const{
     std::vector<FIXGroup> groups;
     groups.reserve(tag_group_values_.size());
     for(const auto &grp_meta: tag_group_values_){
-        groups.emplace_back(grp_meta, 0);
+        groups.emplace_back(grp_meta.first, 0);
     }
     return groups;
 }

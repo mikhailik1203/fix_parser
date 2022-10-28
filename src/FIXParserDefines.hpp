@@ -15,6 +15,10 @@ namespace fix{
         invalid = 0,
         Logon,
         HeartBeat,
+        TestRequest,
+        ResendRequest,
+        Reject,
+        SequenceReset,
         Logout,
 
         NewOrderSingle,

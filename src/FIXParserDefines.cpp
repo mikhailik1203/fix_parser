@@ -17,6 +17,18 @@ FIXMsgType::FIXMsgType(const char *val, uint32_t length){
         case '0':
             type_ = FIXMessageType::HeartBeat;
         break;
+        case '1':
+            type_ = FIXMessageType::TestRequest;
+        break;
+        case '2':
+            type_ = FIXMessageType::ResendRequest;
+        break;
+        case '3':
+            type_ = FIXMessageType::Reject;
+        break;
+        case '4':
+            type_ = FIXMessageType::SequenceReset;
+        break;
         case '5':
             type_ = FIXMessageType::Logout;
         break;

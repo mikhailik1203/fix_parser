@@ -56,6 +56,11 @@ namespace fix{
         }
         return res;
     }
+    static const uint64_t BITS[] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 1ULL<< 12, 1ULL<< 13, 1ULL<< 14, 1ULL<< 15, 1ULL<< 16, 1ULL<<17, 
+            1ULL<< 18, 1ULL<< 19, 1ULL<< 20, 1ULL<< 21, 1ULL<< 22, 1ULL<< 23, 1ULL<< 24, 1ULL<< 25, 1ULL<< 26, 1ULL<< 27, 1ULL<< 28, 1ULL<< 29, 1ULL<< 30, 
+            1ULL<< 31, 1ULL<< 32, 1ULL<< 33, 1ULL<< 34, 1ULL<< 35, 1ULL<< 36, 1ULL<< 37, 1ULL<< 38, 1ULL<< 39, 1ULL<< 40, 1ULL<< 41, 1ULL<< 42, 1ULL<< 43, 
+            1ULL<< 44, 1ULL<< 45, 1ULL<< 46, 1ULL<< 47, 1ULL<< 48, 1ULL<< 49, 1ULL<< 50, 1ULL<< 51, 1ULL<< 52, 1ULL<< 53, 1ULL<< 54, 1ULL<< 55, 1ULL<< 56,
+            1ULL<< 57, 1ULL<< 58, 1ULL<< 59, 1ULL<< 60, 1ULL<< 61, 1ULL<< 62, 1ULL<< 63};
 }
 
 using namespace fix;
@@ -66,18 +71,21 @@ size_t BitMask::size()const noexcept{
 
 void BitMask::set(size_t index){
     assert(index < 8*sizeof(mask_));
-    int64_t val = 1 << index;
+    //int64_t val = 1 << index;
+    int64_t val = BITS[index];
     mask_ |= val;
 }
 
 void BitMask::unset(size_t index){
     assert(index < 8*sizeof(mask_));
-    int64_t val = 1 << index;
+    //int64_t val = 1 << index;
+    int64_t val = BITS[index];
     mask_ &= ~val;
 }
 
 bool BitMask::is_set(size_t index)const noexcept{
-    int64_t val = 1 << index;
+    //int64_t val = 1 << index;
+    int64_t val = BITS[index];
     val = val & mask_;
     return 0 != val;
 }

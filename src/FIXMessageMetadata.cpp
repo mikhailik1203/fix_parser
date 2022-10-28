@@ -20,6 +20,7 @@ FIXMessageMetadata::FIXMessageMetadata(const std::string &name, const FIXDiction
     if(msgs.end() == msg_it)
         throw std::runtime_error("FIXMessageMetadata: Message name [" + name + "] is not found in FIXDictionaty!" );
 
+    msg_type_ = FIXMsgType(name_.c_str(), name_.size());
     msgtype_ = "35=" + name + "\001";
     location_id_ = msg_it->second.location_id();
     const auto &msg_tags = msg_it->second.tags();
@@ -50,8 +51,8 @@ FIXMessageMetadata::FIXMessageMetadata(const std::string &name, const FIXDiction
                 auto grp_tag_id = msg_groups[pos_index];
                 assert(0 < grp_tag_id);
                 size_t value_index = tag_group_values_.size();
-                tag_group_values_.push_back(FIXGroupMetadata(grp_tag_id, dict));
-                auto tag_position_idx = tag_metadata_.size();        
+                auto tag_position_idx = tag_metadata_.size();                        
+                tag_group_values_.push_back({FIXGroupMetadata(grp_tag_id, dict), tag_position_idx});
                 tag_to_meta_idx_[grp_tag_id] = tag_position_idx;
                 tag_metadata_.emplace_back(TagMetadata{grp_tag_id, FIXTagType::GROUP, value_index, tag_position_idx, ""});
             }
@@ -114,7 +115,7 @@ void FIXMessageMetadata::process_tag(const FIXDictionary &dict, const FIXTagVoca
         break;
         case FIXTagType::GROUP:
             value_index = tag_group_values_.size();
-            tag_group_values_.emplace_back(FIXGroupMetadata(tag_id, dict));
+            tag_group_values_.emplace_back(FIXGroupMetadata(tag_id, dict), tag_metadata_.size());
         break;
         default:
             assert(false && "FIXMessageMetadata::process_tag: Tag's type is not supported!" );
@@ -158,8 +159,8 @@ void FIXMessageMetadata::process_block(const FIXDictionary &dict, const FIXTagVo
                 auto grp_tag_id = blk_groups[pos_index];
                 assert(0 < grp_tag_id);
                 size_t value_index = tag_group_values_.size();
-                tag_group_values_.push_back(FIXGroupMetadata(grp_tag_id, dict));
-                auto tag_position_idx = tag_metadata_.size();        
+                auto tag_position_idx = tag_metadata_.size();                        
+                tag_group_values_.push_back({FIXGroupMetadata(grp_tag_id, dict), tag_position_idx});
                 tag_to_meta_idx_[grp_tag_id] = tag_position_idx;
                 tag_metadata_.emplace_back(TagMetadata{grp_tag_id, FIXTagType::GROUP, value_index, tag_position_idx, ""});
             }
@@ -173,7 +174,7 @@ void FIXMessageMetadata::process_block(const FIXDictionary &dict, const FIXTagVo
 FIXMessage FIXMessageMetadata::create()const{
     FIXMessage msg(*this);
     for(const auto &grp_meta: tag_group_values_){
-        msg.tag_group_values_.emplace_back(grp_meta, 0);
+        msg.tag_group_values_.emplace_back(grp_meta.first, 0);
     }
     return msg;
 }
@@ -274,7 +275,7 @@ bool FIXMessageMetadata::set_tag_value(const fix::TagMetadata &meta_data, size_t
         }
     }else{
         const auto &grp_meta = tag_group_values_[meta_data.value_index_];
-        grp_meta.parse(data, msg.get_group(tag_id), string_to_int_positive(val));
+        grp_meta.first.parse(data, msg.get_group(tag_id), string_to_int_positive(val));
     }
     return true;
 }

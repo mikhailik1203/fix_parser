@@ -18,9 +18,10 @@ namespace fix{
         FIXMessageMetadata();
         FIXMessageMetadata(const std::string &name, const FIXDictionary &dict);
 
-        FIXProtocol protocol()const noexcept{return protocol_;}
-        const std::string &name()const noexcept{return name_;}
-        location_id_t location_id()const noexcept{return location_id_;}
+        inline FIXProtocol protocol()const noexcept{return protocol_;}
+        inline const std::string &name()const noexcept{return name_;}
+        inline const FIXMsgType &msg_type()const noexcept{return msg_type_;}
+        inline location_id_t location_id()const noexcept{return location_id_;}
 
         // creates empty instance of FIX message
         FIXMessage create()const;
@@ -32,14 +33,14 @@ namespace fix{
         bool support_tag(tag_id_t tag)const;
         FIXTagType tag_type(tag_id_t tag)const;
 
-        size_t tag_char_count()const noexcept{return tag_char_count_;}
-        size_t tag_int_count()const noexcept{return tag_int_count_;}
-        size_t tag_double_count()const noexcept{return tag_double_count_;}
-        size_t tag_string_count()const noexcept{return tag_string_count_;}
-        size_t tag_date_count()const noexcept{return tag_date_count_;}
-        size_t tag_datetime_count()const noexcept{return tag_datatime_count_;}
-        size_t tag_rawdata_count()const noexcept{return tag_rawdata_count_;}
-        const std::vector<FIXGroupMetadata> &groups()const noexcept{return tag_group_values_;}
+        inline size_t tag_char_count()const noexcept{return tag_char_count_;}
+        inline size_t tag_int_count()const noexcept{return tag_int_count_;}
+        inline size_t tag_double_count()const noexcept{return tag_double_count_;}
+        inline size_t tag_string_count()const noexcept{return tag_string_count_;}
+        inline size_t tag_date_count()const noexcept{return tag_date_count_;}
+        inline size_t tag_datetime_count()const noexcept{return tag_datatime_count_;}
+        inline size_t tag_rawdata_count()const noexcept{return tag_rawdata_count_;}
+        const std::vector<std::pair<FIXGroupMetadata, size_t>> &groups()const noexcept{return tag_group_values_;}
 
         const TagMetadata &tag_metadata(tag_id_t tag)const noexcept;
 
@@ -56,6 +57,7 @@ namespace fix{
     private:
         std::string name_;
         std::string msgtype_;
+        FIXMsgType msg_type_;
         FIXProtocol protocol_;
         location_id_t location_id_;
 
@@ -64,7 +66,7 @@ namespace fix{
         TagsMetadataT tag_metadata_; 
         TagToMetaIndexT tag_to_meta_idx_;
 
-        std::string buffer_;
+        //std::string buffer_;
         uint16_t tag_char_count_ = 0;
         uint16_t tag_int_count_ = 0;
         uint16_t tag_double_count_ = 0;
@@ -72,7 +74,7 @@ namespace fix{
         uint16_t tag_date_count_ = 0;
         uint16_t tag_datatime_count_ = 0;
         uint16_t tag_rawdata_count_ = 0;
-        std::vector<FIXGroupMetadata> tag_group_values_;        
+        std::vector<std::pair<FIXGroupMetadata, size_t>> tag_group_values_;        
     };
 
     using FIXMsgMetadatasT = std::unordered_map<std::string, FIXMessageMetadata>;

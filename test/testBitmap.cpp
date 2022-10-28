@@ -22,6 +22,7 @@ TEST(TestBitmap, vanilla){
 }
 
 TEST(TestToString, vanilla){
+    EXPECT_EQ(4, sizeof(int));
     {
         std::vector<char> buf;
         fix::to_string(0, buf);

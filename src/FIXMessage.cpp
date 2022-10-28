@@ -60,8 +60,6 @@ namespace{
 
 
 FIXMessage::FIXMessage(const FIXMessageMetadata &meta): meta_(meta){
-    const auto &name = meta_.name();
-    type_ = FIXMsgType(name.c_str(), name.size());
     tag_char_values_.resize(meta_.tag_char_count());
     tag_int_values_.resize(meta_.tag_int_count());
     tag_double_values_.resize(meta_.tag_double_count());
@@ -73,16 +71,14 @@ FIXMessage::FIXMessage(const FIXMessageMetadata &meta): meta_(meta){
 
     // set availability for all groups - they are available by default
     const auto &grp_metas = meta_.groups();
-    for(const auto &grp_meta: grp_metas){
-        const auto &tag_meta = meta_.tag_metadata(grp_meta.leading_tag());
-        available_tags_.set(tag_meta.tag_position_);
-        tag_group_values_.emplace_back(grp_meta, 0);
+    for(const auto &grp_meta_pos: grp_metas){
+        available_tags_.set(grp_meta_pos.second);
+        tag_group_values_.emplace_back(grp_meta_pos.first, 0);
     }
 }
 
 FIXMessage::FIXMessage(FIXMessage &&val): meta_(val.meta_){
-    std::swap(type_, val.type_);
-    std::swap(buffer_, val.buffer_);
+    //std::swap(buffer_, val.buffer_);
     std::swap(tag_char_values_, val.tag_char_values_);
     std::swap(tag_int_values_, val.tag_int_values_);
     std::swap(tag_double_values_, val.tag_double_values_);
@@ -97,8 +93,9 @@ FIXMessage::FIXMessage(FIXMessage &&val): meta_(val.meta_){
 FIXProtocol FIXMessage::protocol()const{
     return meta_.protocol();
 }
+
 const FIXMsgType &FIXMessage::message_type()const{
-    return type_;
+    return meta_.msg_type();
 }
 
 bool FIXMessage::has_tag(tag_id_t tag)const{

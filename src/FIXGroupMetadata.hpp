@@ -24,9 +24,9 @@ namespace fix{
         FIXGroupMetadata &operator=(FIXGroupMetadata &&) = default;
 
         // returns leading tag of the group
-        tag_id_t leading_tag()const noexcept{return leading_tag_id_;}
-        tag_id_t entry_tag()const noexcept{return entry_start_tag_id_;}
-        location_id_t location_id()const noexcept{return location_id_;}
+        inline tag_id_t leading_tag()const noexcept{return leading_tag_id_;}
+        inline tag_id_t entry_tag()const noexcept{return entry_start_tag_id_;}
+        inline location_id_t location_id()const noexcept{return location_id_;}
 
         // creates empty instance of group
         FIXGroup create()const;
@@ -43,14 +43,14 @@ namespace fix{
         bool support_tag(tag_id_t tag)const noexcept;
         FIXTagType tag_type(tag_id_t tag)const noexcept;
 
-        size_t tag_char_count()const noexcept{return tag_char_count_;}
-        size_t tag_int_count()const noexcept{return tag_int_count_;}
-        size_t tag_double_count()const noexcept{return tag_double_count_;}
-        size_t tag_string_count()const noexcept{return tag_string_count_;}
-        size_t tag_date_count()const noexcept{return tag_date_count_;}
-        size_t tag_datetime_count()const noexcept{return tag_datatime_count_;}
-        size_t tag_rawdata_count()const noexcept{return tag_rawdata_count_;}
-        const std::vector<FIXGroupMetadata> &groups()const noexcept{return tag_group_values_;}
+        inline size_t tag_char_count()const noexcept{return tag_char_count_;}
+        inline size_t tag_int_count()const noexcept{return tag_int_count_;}
+        inline size_t tag_double_count()const noexcept{return tag_double_count_;}
+        inline size_t tag_string_count()const noexcept{return tag_string_count_;}
+        inline size_t tag_date_count()const noexcept{return tag_date_count_;}
+        inline size_t tag_datetime_count()const noexcept{return tag_datatime_count_;}
+        inline size_t tag_rawdata_count()const noexcept{return tag_rawdata_count_;}
+        const std::vector<std::pair<FIXGroupMetadata, size_t>> &groups()const noexcept{return tag_group_values_;}
 
         const TagMetadata &tag_metadata(tag_id_t tag)const noexcept;
 
@@ -77,7 +77,7 @@ namespace fix{
         TagToMetaIndexT tag_to_meta_idx_;
 
         // templates for data
-        std::string buffer_;
+        //std::string buffer_;
         uint16_t tag_char_count_ = 0;
         uint16_t tag_int_count_ = 0;
         uint16_t tag_double_count_ = 0;
@@ -85,10 +85,11 @@ namespace fix{
         uint16_t tag_date_count_ = 0;
         uint16_t tag_datatime_count_ = 0;
         uint16_t tag_rawdata_count_ = 0;
-        std::vector<FIXGroupMetadata> tag_group_values_;
+        std::vector<std::pair<FIXGroupMetadata, size_t>> tag_group_values_;
     };
 
     using FIXGrpTmplatesT = std::unordered_map<tag_id_t, FIXGroupMetadata>;
 
     static FIXGroupMetadata DUMMY_GROUP_METADATA;
+    
 }
