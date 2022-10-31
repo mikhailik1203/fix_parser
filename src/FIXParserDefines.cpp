@@ -7,7 +7,7 @@ using namespace fix;
 FIXMsgType::FIXMsgType(const char *val, uint32_t length){
     if(nullptr == val || 0 == length)
         return;
-    
+    type_ = FIXMessageType::CustomDefined;        
     switch(length){
     case 1:
         switch(val[0]){
@@ -42,21 +42,17 @@ FIXMsgType::FIXMsgType(const char *val, uint32_t length){
             type_ = FIXMessageType::UserDefined;
         break;
         default:
-            assert(false && "Message type is not supported(1 symbol)!");
+            ; // it's CustomDefined message
         };
         break;
     case 2:
-        if ('U' != val[0]){
-            assert(false && "Message type is not supported(2 symbols)!");
-        }else{
-            type_ = FIXMessageType::UserDefined;                
-        }
+        if ('U' == val[0]){
+            type_ = FIXMessageType::UserDefined;
+        } 
         break;
     default:
-        if ('U' != val[0]){
-            assert(false && "Message type is not supported - too long!");
-        }else{
-            type_ = FIXMessageType::UserDefined;                
+        if ('U' == val[0]){
+            type_ = FIXMessageType::UserDefined;
         }
     }
     type_val_ = {std::string_view(val, length)};    

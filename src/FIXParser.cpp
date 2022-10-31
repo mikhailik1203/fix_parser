@@ -7,29 +7,56 @@ using namespace fix;
 
 FIXParser::FIXParser(const FIXDictionary &dict){
     for(const auto &[msg_name, msg_def]: dict.messages()){
-        msg_metadata_.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(msg_name),
-                std::forward_as_tuple(msg_name, dict));
+        FIXMsgType msg_type(msg_name.c_str(), msg_name.size());
+        auto type = msg_type.type();
+        if(FIXMessageType::UserDefined != type && FIXMessageType::CustomDefined != type){
+            msgtype_metadata_.emplace(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(type),
+                    std::forward_as_tuple(msg_name, dict));
+        }else{
+            usermsg_metadata_.emplace(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(msg_name),
+                    std::forward_as_tuple(msg_name, dict));
+        }
     }
 }
 
 FIXMessage FIXParser::create(const std::string &type_name)const{
-    auto meta_it = msg_metadata_.find(type_name);
-    if(msg_metadata_.end() == meta_it){
-        return FIXMessage(DUMMY_FIXMSG_METADATA);
+    FIXMsgType msg_type(type_name.c_str(), type_name.size());   
+    auto type = msg_type.type();
+    if(FIXMessageType::UserDefined != type && FIXMessageType::CustomDefined != type){     
+        auto meta_it = msgtype_metadata_.find(msg_type.type());
+        if(msgtype_metadata_.end() != meta_it){
+            return meta_it->second.create();    
+        }
+    }else{
+        auto meta_it = usermsg_metadata_.find(type_name);
+        if(usermsg_metadata_.end() != meta_it){
+            return meta_it->second.create();    
+        }
     }
-    return meta_it->second.create();
-}
+    return FIXMessage(DUMMY_FIXMSG_METADATA);    
+} 
 
-FIXMessage FIXParser::parse(const FIXMsgBuffer &msg_buffer){
-    const std::string_view &type_val = msg_buffer.type().type_value().to_string();
-    auto meta_it = msg_metadata_.find(std::string(type_val));
-    if(msg_metadata_.end() == meta_it){
-        return FIXMessage(DUMMY_FIXMSG_METADATA);
+FIXMessage FIXParser::parse(const char *buffer, size_t len){
+    FIXMsgBuffer msg_buffer = FIXMsgBuffer::create(buffer, len);
+    auto type = msg_buffer.type().type();
+    if(FIXMessageType::UserDefined != type && FIXMessageType::CustomDefined != type){     
+        auto meta_it = msgtype_metadata_.find(type);
+        if(msgtype_metadata_.end() != meta_it){
+            MsgReceived msg_data{msg_buffer.buffer(), 0, "", 0};
+            return meta_it->second.parse(msg_data);
+        }
+    }else{
+        auto meta_it = usermsg_metadata_.find(std::string(msg_buffer.type().type_value().to_string()));
+        if(usermsg_metadata_.end() != meta_it){
+            MsgReceived msg_data{msg_buffer.buffer(), 0, "", 0};
+            return meta_it->second.parse(msg_data);
+        }
     }
-    MsgReceived msg_data{msg_buffer.buffer(), 0, "", 0};
-    return meta_it->second.parse(msg_data);
+    return FIXMessage(DUMMY_FIXMSG_METADATA);
 }
 
 FIXMsgBuffer FIXParser::serialize(const FIXMessage &msg, bool update_header, bool update_trailer){

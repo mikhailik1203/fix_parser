@@ -1,71 +1,52 @@
- Throughput of get_timer 1000000 time is 20527072 nsec, avg=20nsec per call
- 		 Calculated duration 10101803377004
- Latency of get_timer: min=15 nsec; 50%=20 nsec; 95%=25 nsec; 99%=43 nsec; max=123282 nsec
-	15 | 20 | 25 | 43 | 123282
- Throughput of NewOrderSngl[D] create empty 1000000 time is 175830140 nsec, avg=175nsec per call
- Latency of of NewOrderSngl[D] create empty: min=184 nsec; 50%=198 nsec; 95%=351 nsec; 99%=400 nsec; max=970687 nsec
-	184 | 198 | 351 | 400 | 970687
- Throughput of NewOrderSngl[D] serialization 1000000 time is 388299010 nsec, avg=388nsec per call
+=======================================================================================
+ Throughput of get_timer 1000000 time is 20364358 nsec, avg=20nsec per call
+ 		 Calculated duration 10181343127708
+ Latency of get_timer: min=15 nsec; 50%=20 nsec; 95%=24 nsec; 99%=26 nsec; max=148409 nsec
+	15 | 20 | 24 | 26 | 148409
+ Throughput of NewOrderSngl[D] create empty 1000000 time is 148180782 nsec, avg=148nsec per call
+ Latency of of NewOrderSngl[D] create empty: min=160 nsec; 50%=168 nsec; 95%=183 nsec; 99%=194 nsec; max=1168720 nsec
+	160 | 168 | 183 | 194 | 1168720
+ Throughput of NewOrderSngl[D] serialization 1000000 time is 389844513 nsec, avg=389nsec per call
  Message is [8=FIX.4.49=13235=D49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.12345611=98765432154=138=10.044=100.055=MSFT18=640=259=110=183], length 155, total=155000000
- Latency of of NewOrderSngl[D] serialization: min=387 nsec; 50%=403 nsec; 95%=432 nsec; 99%=829 nsec; max=101276 nsec
-	387 | 403 | 432 | 829 | 101276
- Throughput of NewOrderSngl[D] parse 1000000 time is 218174351 nsec, avg=218nsec per call
- Message is [8=FIX.4.49=13235=D49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.12345611=98765432154=138=10.044=100.055=MSFT18=640=259=110=183], length 155, total=1000000
- Latency of of NewOrderSngl[D] parse: min=195 nsec; 50%=215 nsec; 95%=229 nsec; 99%=387 nsec; max=58955 nsec
-	195 | 215 | 229 | 387 | 58955
- Throughput of MDSubscr[V] serialization 1000000 time is 456958268 nsec, avg=456nsec per call
- Message is [8=FIX.4.49=15735=V49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.123456262=123456263=1264=0265=1267=3269=0269=1269=2146=355=MSFT55=NVDA55=AMZN10=024], length 180, total=180000000
- Latency of of MDSubscr[V] serialization: min=443 nsec; 50%=460 nsec; 95%=492 nsec; 99%=517 nsec; max=84257 nsec
-	443 | 460 | 492 | 517 | 84257
- Throughput of MDSubscr[V] parse 1000000 time is 312213791 nsec, avg=312nsec per call
- Message is [8=FIX.4.49=15735=V49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.123456262=123456263=1264=0265=1267=3269=0269=1269=2146=355=MSFT55=NVDA55=AMZN10=024ü.], length 180, total=1000000
- Latency of of MDSubscr[V] parse: min=289 nsec; 50%=302 nsec; 95%=324 nsec; 99%=354 nsec; max=83762 nsec
-	289 | 302 | 324 | 354 | 83762
---------------------------------------------------------
- Throughput of get_timer 1000000 time is 20175812 nsec, avg=20nsec per call
- 		 Calculated duration 10101336679490
- Latency of get_timer: min=15 nsec; 50%=20 nsec; 95%=24 nsec; 99%=25 nsec; max=147542 nsec
-	15 | 20 | 24 | 25 | 147542
- Throughput of NewOrderSngl[D] create empty 1000000 time is 162596245 nsec, avg=162nsec per call
- Latency of of NewOrderSngl[D] create empty: min=171 nsec; 50%=182 nsec; 95%=195 nsec; 99%=235 nsec; max=1041349 nsec
-	171 | 182 | 195 | 235 | 1041349
- Throughput of NewOrderSngl[D] serialization 1000000 time is 395397815 nsec, avg=395nsec per call
+ Latency of of NewOrderSngl[D] serialization: min=402 nsec; 50%=411 nsec; 95%=432 nsec; 99%=451 nsec; max=12442 nsec
+	402 | 411 | 432 | 451 | 12442
+ Throughput of NewOrderSngl[D] parse 1000000 time is 654034281 nsec, avg=654nsec per call
+ Message is [8=FIX.4.49=13235=D49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.12345611=98765432154=138=10.044=100.055=MSFT18=640=259=110=183], length 156, total=1000000
+ Latency of of NewOrderSngl[D] parse: min=619 nsec; 50%=632 nsec; 95%=971 nsec; 99%=1107 nsec; max=12926 nsec
+	619 | 632 | 971 | 1107 | 12926
+----------------------------------------------------------------------------------------
+ Throughput of MDSubscr[V] serialization 1000000 time is 484946204 nsec, avg=484nsec per call
+ Message is [8=FIX.4.49=15735=V49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.123456262=123456263=1264=0265=1267=3269=0269=1269=2146=355=MSFT55=NVDA55=AMZN10=024²], length 180, total=180000000
+ Latency of of MDSubscr[V] serialization: min=501 nsec; 50%=511 nsec; 95%=537 nsec; 99%=564 nsec; max=12534 nsec
+	501 | 511 | 537 | 564 | 12534
+ Throughput of MDSubscr[V] parse 1000000 time is 1468631788 nsec, avg=1468nsec per call
+ Message is [8=FIX.4.49=15735=V49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.123456262=123456263=1264=0265=1267=3269=0269=1269=2146=355=MSFT55=NVDA55=AMZN10=024], length 181, total=1000000
+ Latency of of MDSubscr[V] parse: min=1463 nsec; 50%=1479 nsec; 95%=1536 nsec; 99%=1583 nsec; max=42186 nsec
+	1463 | 1479 | 1536 | 1583 | 42186
+=======================================================================================
+=======================================================================================
+ Throughput of get_timer 1000000 time is 19896364 nsec, avg=19nsec per call
+ 		 Calculated duration 9855914133007
+ Latency of get_timer: min=15 nsec; 50%=20 nsec; 95%=25 nsec; 99%=33 nsec; max=125410 nsec
+	15 | 20 | 25 | 33 | 125410
+ Throughput of NewOrderSngl[D] create empty 1000000 time is 146718875 nsec, avg=146nsec per call
+ Latency of of NewOrderSngl[D] create empty: min=160 nsec; 50%=168 nsec; 95%=182 nsec; 99%=190 nsec; max=643747 nsec
+	160 | 168 | 182 | 190 | 643747
+ Throughput of NewOrderSngl[D] serialization 1000000 time is 380775372 nsec, avg=380nsec per call
  Message is [8=FIX.4.49=13235=D49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.12345611=98765432154=138=10.044=100.055=MSFT18=640=259=110=183], length 155, total=155000000
- Latency of of NewOrderSngl[D] serialization: min=382 nsec; 50%=408 nsec; 95%=429 nsec; 99%=451 nsec; max=78071 nsec
-	382 | 408 | 429 | 451 | 78071
- Throughput of NewOrderSngl[D] parse 1000000 time is 192304922 nsec, avg=192nsec per call
- Message is [8=FIX.4.49=13235=D49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.12345611=98765432154=138=10.044=100.055=MSFT18=640=259=110=183], length 155, total=1000000
- Latency of of NewOrderSngl[D] parse: min=195 nsec; 50%=206 nsec; 95%=217 nsec; 99%=221 nsec; max=78683 nsec
-	195 | 206 | 217 | 221 | 78683
- Throughput of MDSubscr[V] serialization 1000000 time is 449079669 nsec, avg=449nsec per call
- Message is [8=FIX.4.49=15735=V49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.123456262=123456263=1264=0265=1267=3269=0269=1269=2146=355=MSFT55=NVDA55=AMZN10=024], length 180, total=180000000
- Latency of of MDSubscr[V] serialization: min=441 nsec; 50%=465 nsec; 95%=495 nsec; 99%=517 nsec; max=86809 nsec
-	441 | 465 | 495 | 517 | 86809
- Throughput of MDSubscr[V] parse 1000000 time is 290968135 nsec, avg=290nsec per call
- Message is [8=FIX.4.49=15735=V49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.123456262=123456263=1264=0265=1267=3269=0269=1269=2146=355=MSFT55=NVDA55=AMZN10=024ü“], length 180, total=1000000
- Latency of of MDSubscr[V] parse: min=303 nsec; 50%=317 nsec; 95%=342 nsec; 99%=365 nsec; max=180777 nsec
-	303 | 317 | 342 | 365 | 180777
---------------------------------------------------------------	
- Throughput of get_timer 1000000 time is 30059348 nsec, avg=30nsec per call
- 		 Calculated duration 12821403627596
- Latency of get_timer: min=15 nsec; 50%=20 nsec; 95%=47 nsec; 99%=51 nsec; max=143178 nsec
-	15 | 20 | 47 | 51 | 143178
- Throughput of NewOrderSngl[D] create empty 1000000 time is 174057126 nsec, avg=174nsec per call
- Latency of of NewOrderSngl[D] create empty: min=179 nsec; 50%=185 nsec; 95%=193 nsec; 99%=197 nsec; max=868184 nsec
-	179 | 185 | 193 | 197 | 868184
- Throughput of NewOrderSngl[D] serialization 1000000 time is 390133631 nsec, avg=390nsec per call
- Message is [8=FIX.4.49=13235=D49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.12345611=98765432154=138=10.044=100.055=MSFT18=640=259=110=183], length 155, total=155000000
- Latency of of NewOrderSngl[D] serialization: min=391 nsec; 50%=401 nsec; 95%=421 nsec; 99%=435 nsec; max=64989 nsec
-	391 | 401 | 421 | 435 | 64989
- Throughput of NewOrderSngl[D] parse 1000000 time is 189592407 nsec, avg=189nsec per call
- Message is [8=FIX.4.49=13235=D49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.12345611=98765432154=138=10.044=100.055=MSFT18=640=259=110=183], length 155, total=1000000
- Latency of of NewOrderSngl[D] parse: min=194 nsec; 50%=206 nsec; 95%=217 nsec; 99%=220 nsec; max=41038 nsec
-	194 | 206 | 217 | 220 | 41038
- Throughput of MDSubscr[V] serialization 1000000 time is 445597752 nsec, avg=445nsec per call
- Message is [8=FIX.4.49=15735=V49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.123456262=123456263=1264=0265=1267=3269=0269=1269=2146=355=MSFT55=NVDA55=AMZN10=024], length 180, total=180000000
- Latency of of MDSubscr[V] serialization: min=439 nsec; 50%=459 nsec; 95%=493 nsec; 99%=942 nsec; max=111156 nsec
-	439 | 459 | 493 | 942 | 111156
- Throughput of MDSubscr[V] parse 1000000 time is 324958201 nsec, avg=324nsec per call
- Message is [8=FIX.4.49=15735=V49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.123456262=123456263=1264=0265=1267=3269=0269=1269=2146=355=MSFT55=NVDA55=AMZN10=024üsN], length 180, total=1000000
- Latency of of MDSubscr[V] parse: min=303 nsec; 50%=317 nsec; 95%=340 nsec; 99%=661 nsec; max=71771 nsec
-	303 | 317 | 340 | 661 | 71771
+ Latency of of NewOrderSngl[D] serialization: min=403 nsec; 50%=412 nsec; 95%=432 nsec; 99%=438 nsec; max=11922 nsec
+	403 | 412 | 432 | 438 | 11922
+ Throughput of NewOrderSngl[D] parse 1000000 time is 616559548 nsec, avg=616nsec per call
+ Message is [8=FIX.4.49=13235=D49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.12345611=98765432154=138=10.044=100.055=MSFT18=640=259=110=183], length 156, total=1000000
+ Latency of of NewOrderSngl[D] parse: min=626 nsec; 50%=639 nsec; 95%=665 nsec; 99%=678 nsec; max=59776 nsec
+	626 | 639 | 665 | 678 | 59776
+----------------------------------------------------------------------------------------
+ Throughput of MDSubscr[V] serialization 1000000 time is 470881519 nsec, avg=470nsec per call
+ Message is [8=FIX.4.49=15735=V49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.123456262=123456263=1264=0265=1267=3269=0269=1269=2146=355=MSFT55=NVDA55=AMZN10=024©], length 180, total=180000000
+ Latency of of MDSubscr[V] serialization: min=489 nsec; 50%=500 nsec; 95%=518 nsec; 99%=535 nsec; max=11968 nsec
+	489 | 500 | 518 | 535 | 11968
+ Throughput of MDSubscr[V] parse 1000000 time is 1475056860 nsec, avg=1475nsec per call
+ Message is [8=FIX.4.49=15735=V49=BenchSenderId56=BenchTargetId34=77752=20221005 12:44:55.123456262=123456263=1264=0265=1267=3269=0269=1269=2146=355=MSFT55=NVDA55=AMZN10=024], length 181, total=1000000
+ Latency of of MDSubscr[V] parse: min=1405 nsec; 50%=1465 nsec; 95%=1543 nsec; 99%=1587 nsec; max=14555 nsec
+	1405 | 1465 | 1543 | 1587 | 14555
+=======================================================================================

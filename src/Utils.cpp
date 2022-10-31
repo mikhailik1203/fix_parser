@@ -5,44 +5,46 @@
 namespace fix{
     void to_string(int val, std::vector<char> &buffer){
         if(0 == val){
-            buffer.push_back('0');
-            buffer.push_back(1);
+            char buf[] = "0\001";
+            buffer.insert(buffer.end(), buf, buf + 2);
             return;
-        }
-        char buf[16];
-        int pos = 0;
-        if(val < 0){
-            buf[pos++] = '-';
-            val *= -1;
-        }
-        if(val >= 1000000000){
-            pos += 10;
-        }else if(val >= 100000000){
-            pos += 9;
-        }else if(val >= 10000000){
-            pos += 8;
-        }else if(val >= 1000000){
-            pos += 7;
-        }else if(val >= 100000){
-            pos += 6;
-        }else if(val >= 10000){
-            pos += 5;
-        }else if(val >= 1000){
-            pos += 4;
-        }else if(val >= 100){
-            pos += 3;
-        }else if(val >= 10){
-            pos += 2;
         }else{
-            pos += 1;
+            char buf[16];
+            int pos = 0;
+            if(val < 0){
+                buf[pos++] = '-';
+                val *= -1;
+            }
+            if(val < 100000){
+                if(val < 100){
+                    pos += (val >= 10)?(2):(1);
+                }else{
+                    if(val < 10000){
+                        pos += (val >= 1000)?(4):(3);
+                    }else{
+                        pos += 5;
+                    }
+                }
+            }else{
+                if(val < 10000000){
+                    pos += (val >= 1000000)?(7):(6);
+                }else{
+                    if(val < 1000000000){
+                        pos += (val >= 100000000)?(9):(8);
+                    }else{
+                        pos += 10;    
+                    }
+                }
+            }
+
+            buf[pos--] = 1;
+            auto count = pos + 1;
+            while (0 < val){
+                buf[pos--] = '0' + val%10;
+                val /= 10;
+            }
+            buffer.insert(buffer.end(), buf, buf + count + 1);
         }
-        buf[pos--] = 1;
-        auto count = pos + 1;
-        while (0 < val){
-            buf[pos--] = '0' + val%10;
-            val /= 10;
-        }
-        buffer.insert(buffer.end(), buf, buf + count + 1);
     }
 
     std::string to_tag_prefix(int val){
@@ -56,6 +58,28 @@ namespace fix{
         }
         return res;
     }
+
+    int string_to_int(const std::string_view &val){
+        int res = 0;
+        size_t count = val.size();
+        size_t pos = 0;
+        int mul = 1;
+        if('-' == val[pos]){
+            mul = -1;
+            ++pos;
+        }
+        while(pos != count){
+            unsigned digit = val[pos] - '0';
+            if(digit <= 9){
+                res = res*10 + digit;
+            }else{
+                return mul*res;
+            }
+            ++pos;
+        }
+        return mul*res;
+    }
+
     static const uint64_t BITS[] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 1ULL<< 12, 1ULL<< 13, 1ULL<< 14, 1ULL<< 15, 1ULL<< 16, 1ULL<<17, 
             1ULL<< 18, 1ULL<< 19, 1ULL<< 20, 1ULL<< 21, 1ULL<< 22, 1ULL<< 23, 1ULL<< 24, 1ULL<< 25, 1ULL<< 26, 1ULL<< 27, 1ULL<< 28, 1ULL<< 29, 1ULL<< 30, 
             1ULL<< 31, 1ULL<< 32, 1ULL<< 33, 1ULL<< 34, 1ULL<< 35, 1ULL<< 36, 1ULL<< 37, 1ULL<< 38, 1ULL<< 39, 1ULL<< 40, 1ULL<< 41, 1ULL<< 42, 1ULL<< 43, 
@@ -71,23 +95,16 @@ size_t BitMask::size()const noexcept{
 
 void BitMask::set(size_t index){
     assert(index < 8*sizeof(mask_));
-    //int64_t val = 1 << index;
-    int64_t val = BITS[index];
-    mask_ |= val;
+    mask_ |= BITS[index];
 }
 
 void BitMask::unset(size_t index){
     assert(index < 8*sizeof(mask_));
-    //int64_t val = 1 << index;
-    int64_t val = BITS[index];
-    mask_ &= ~val;
+    mask_ &= ~BITS[index];
 }
 
 bool BitMask::is_set(size_t index)const noexcept{
-    //int64_t val = 1 << index;
-    int64_t val = BITS[index];
-    val = val & mask_;
-    return 0 != val;
+    return 0 != (BITS[index] & mask_);
 }
 
 size_t MsgReceived::current_tag_id(){
@@ -95,9 +112,10 @@ size_t MsgReceived::current_tag_id(){
         return curr_tag_id_;
     curr_tag_id_ = 0;
     while(pos_ < data_.size()){
-        if ('0' <= data_[pos_] && data_[pos_] <= '9'){
-            curr_tag_id_ = 10*curr_tag_id_ + (data_[pos_] - '0');
-        }else if('=' == data_[pos_]){
+        int val = data_[pos_] - '0';
+        if (0 <= val && val <= 9){
+            curr_tag_id_ = 10*curr_tag_id_ + val;
+        }else if(13 == val){ //'=' symbol
             ++pos_;// skip '=', so next is a value symbol
             return curr_tag_id_;
         }else{
@@ -124,8 +142,7 @@ std::string_view MsgReceived::parse_value(){
     return std::string_view();
 }
 
-std::string_view MsgReceived::parse_rawdata_value(const std::string_view &len_val){
-    auto raw_len = string_to_int_positive(len_val);
+std::string_view MsgReceived::parse_rawdata_value(int raw_len){
     curr_tag_id_ = 0;
     size_t start_pos_ = pos_;
     if(start_pos_ + raw_len < data_.size()){
@@ -134,5 +151,55 @@ std::string_view MsgReceived::parse_rawdata_value(const std::string_view &len_va
     }
     error_ = "Invalid RawData format, data should contains raw_len and SOH!";
     return std::string_view();
+}
+
+bool MsgReceived::parse_bool_value(){
+    curr_tag_id_ = 0;
+    size_t curr_pos_ = pos_++;
+    if(1 == data_[pos_]){
+        ++pos_;// skip SOH
+        return 'Y' == data_[curr_pos_];
+    }
+    error_ = "Invalid bool tag-value format, SOH is expected after value!";
+    return false; 
+}
+
+char MsgReceived::parse_char_value(){
+    curr_tag_id_ = 0;
+    size_t curr_pos_ = pos_++;
+    if(1 == data_[pos_]){
+        ++pos_;// skip SOH
+        return data_[curr_pos_];
+    }
+    error_ = "Invalid char tag-value format, SOH is expected after value!";
+    return 0;
+}
+
+int MsgReceived::parse_int_value(){
+    curr_tag_id_ = 0;
+
+    int res = 0;
+    size_t count = data_.size();
+    int mul = 1;
+    if('-' == data_[pos_]){
+        mul = -1;
+        ++pos_;
+    }
+    while(pos_ != count){
+        unsigned digit = data_[pos_] - '0';
+        if(digit <= 9){
+            res = res*10 + digit;
+        }else{
+            if(1 == data_[pos_]){
+                ++pos_;// skip SOH
+                return mul*res;
+            }
+            error_ = "Invalid int tag-value format, SOH is expected after value!";
+            return 0;
+        }
+        ++pos_;
+    }
+    error_ = "Invalid int tag-value format, SOH is not found in message!";    
+    return 0;
 }
 

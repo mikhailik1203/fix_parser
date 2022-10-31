@@ -3,7 +3,7 @@
 #include "FIXParserDefines.hpp"
 #include "FIXMessage.hpp"
 
-namespace fix{
+namespace fix{ 
     // Facade for FIX messages: creates FIX messages from scratch or raw text, serializes FIX message to the raw text
     class FIXParser{
     public:
@@ -18,13 +18,15 @@ namespace fix{
         // creates and returns empty FIX message
         FIXMessage create(const std::string &type_name)const;
 
-        // creates FIX message from raw text
-        FIXMessage parse(const FIXMsgBuffer &msg_buffer);
-
+        // creates FIX message from raw text, 
+        // Important: buffer is shared with FIXMessage object and must not be changed/destroyed while FIXMessage object is alive
+        FIXMessage parse(const char *buffer, size_t len);
+        
         // serializes FIX message to the raw text
         static FIXMsgBuffer serialize(const FIXMessage &msg, bool update_header = true, bool update_trailer = true);
 
     private:
-        FIXMsgMetadatasT msg_metadata_;
+        FIXMsgTypeMetadatasT msgtype_metadata_;
+        FIXMsgMetadatasT usermsg_metadata_;
     };
 }

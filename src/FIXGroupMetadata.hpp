@@ -61,8 +61,7 @@ namespace fix{
     private:
         void process_tag(const FIXDictionary &dict, const FIXTagVocabulary &vocab, tag_id_t tag_id);
         void process_block(const FIXDictionary &dict, const FIXTagVocabulary &vocab, block_id_t block_id);
-        bool set_tag_value(const fix::TagMetadata &meta, size_t &tag_id, std::string_view val, 
-                            MsgReceived &data, FIXGroupEntry &entry, FIXGroup &grp)const;
+        bool set_tag_value(const fix::TagMetadata &meta, size_t &tag_id, MsgReceived &data, FIXGroupEntry &entry, FIXGroup &grp)const;
         bool process_entry(size_t &tag_id, MsgReceived &data, FIXGroupEntry &entry, FIXGroup &grp)const;
 
     private:

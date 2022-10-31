@@ -39,9 +39,9 @@ TEST(TestFIXParser, parse_UT1){
     FIXDictionary dict_fixTest = FIXTestBuilder::build();
     const char raw_data[] = "8=FIX.4.4\x1" "9=104\x1" "35=UT1\x1" "1=111\x1" "4=Y\x1" "7=123.456\x1" "13=Test string value\x1" 
                 "16=20221024\x1" "19=20221024 12:45:56\x1" "22=13\x1" "23=\x1\x2raw data \x1\x2\x1" "10=000\x1";
-    auto raw_message = FIXMsgBuffer::create(&raw_data[0], (uint32_t)129);
+    size_t raw_data_len = sizeof(raw_data)/sizeof(char);
     FIXParser parser(dict_fixTest);
-    auto msg = parser.parse(raw_message);
+    auto msg = parser.parse(raw_data, raw_data_len);
 
     EXPECT_EQ(FIXMessageType::UserDefined, msg.message_type().type());
     EXPECT_EQ("UT1", msg.message_type().type_value().to_string());

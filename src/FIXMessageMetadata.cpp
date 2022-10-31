@@ -250,10 +250,10 @@ void FIXMessageMetadata::serialize(const FIXMessage &data, std::vector<char> &bu
     }
 }
 
-bool FIXMessageMetadata::set_tag_value(const fix::TagMetadata &meta_data, size_t &tag_id, std::string_view val, 
+bool FIXMessageMetadata::set_tag_value(const fix::TagMetadata &meta_data, size_t &tag_id, 
                                      MsgReceived &data, FIXMessage &msg)const{
     if(FIXTagType::GROUP != meta_data.type_){
-        msg.set_value(meta_data, tag_id, val);
+        msg.set_value(meta_data, tag_id, data);
         if(FIXTagType::RAWDATALEN == meta_data.type_){
             auto raw_tag_id = data.current_tag_id();
             if(0 == raw_tag_id || !data.error_.empty())
@@ -267,15 +267,18 @@ bool FIXMessageMetadata::set_tag_value(const fix::TagMetadata &meta_data, size_t
                 data.error_ = "Next tag after RAWDATALEN is not RAWDATA!";
                 return false; // next tag should be raw data!
             }
-            auto raw_val = data.parse_rawdata_value(val);
+            auto raw_val = data.parse_rawdata_value(msg.get_int(tag_id));
             if(!data.error_.empty())
                 return false;
-            msg.set_value(meta_data, raw_tag_id, raw_val);
+            msg.set_rawdata(raw_tag_id, FIXRawData{raw_val});
             tag_id = raw_tag_id;
         }
     }else{
+        int grp_count = data.parse_int_value();
+        if(0 == grp_count || !data.error_.empty())
+            return false;
         const auto &grp_meta = tag_group_values_[meta_data.value_index_];
-        grp_meta.first.parse(data, msg.get_group(tag_id), string_to_int_positive(val));
+        grp_meta.first.parse(data, msg.get_group(tag_id), grp_count);
     }
     return true;
 }
@@ -290,13 +293,12 @@ FIXMessage FIXMessageMetadata::parse(MsgReceived &data)const{
             return msg; // tag_id is not related to this group - finished parsing this group
         }
         const auto &meta_data = tag_metadata_[meta_it->second];
-        auto val = data.parse_value();
-        if(!data.error_.empty())
-            return msg;
-        if (!set_tag_value(meta_data, tag_id, val, data, msg)){
+        if (!set_tag_value(meta_data, tag_id, data, msg)){
             return msg;
         }
+        if(!data.error_.empty())
+            return msg;
         tag_id = data.current_tag_id();
     }; 
-    return msg;
+    return msg; 
 }

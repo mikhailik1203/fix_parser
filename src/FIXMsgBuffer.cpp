@@ -34,8 +34,12 @@ FIXMsgBuffer FIXMsgBuffer::create(const char *buffer, uint32_t length){
 
     uint32_t msg_len = 0;
     uint32_t len_pos = MSG_PREFIX_LEN;
-    while((len_pos < (MSG_PREFIX_LEN + MAX_MSG_BODY_LEN)) && isdigit(buffer[len_pos])){
-        msg_len = msg_len*10 + (buffer[len_pos] - '0');
+    while(len_pos < (MSG_PREFIX_LEN + MAX_MSG_BODY_LEN)){
+        unsigned digit = buffer[len_pos] - '0';
+        if(digit <= 9)
+            msg_len = msg_len*10 + digit;
+        else 
+            break;
         ++len_pos;
     }
     // no sense to continue, if msg_len in correct or SOH was not found or 

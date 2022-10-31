@@ -196,14 +196,15 @@ namespace {
         FIXDictionary dict_fix44 = FIX44Builder::build();
         FIXParser parser(dict_fix44);
         uint64_t avg_nsec = 0;        
+        const char raw_msg[] = "8=FIX.4.4\0019=157\00135=V\00149=BenchSenderId\00156=BenchTargetId\00134=777\00152=20221005 12:44:55.123456\001"
+            "262=123456\001263=1\001264=0\001265=1\001267=3\001269=0\001269=1\001269=2\001146=3\00155=MSFT\00155=NVDA\00155=AMZN\00110=024\001";
+        size_t raw_msg_size = sizeof(raw_msg)/sizeof(char);
         { /// measure throughput
-            auto msg = create_MDSubscription(parser);        
-            auto raw_msg = FIXParser::serialize(msg, true, true);
             uint64_t thoughput_nsec = 0, dur = 0;
             {
                 auto start_tm = std::chrono::high_resolution_clock::now();
                 for (size_t i = 0; i < BENCHMARK_DATA_COUNT; ++i) {
-                    auto res = parser.parse(raw_msg);
+                    auto res = parser.parse(raw_msg, raw_msg_size);
                     dur += static_cast<int>(res.protocol());
                 }
                 auto finish_tm = std::chrono::high_resolution_clock::now();
@@ -212,23 +213,18 @@ namespace {
             avg_nsec = thoughput_nsec/BENCHMARK_DATA_COUNT;
             std::cout << " Throughput of MDSubscr[V] parse " << BENCHMARK_DATA_COUNT << " time is " << thoughput_nsec
                       << " nsec, avg="<< avg_nsec<< "nsec per call"<< std::endl;
-            {
-                auto res = FIXParser::serialize(msg, true, true);
-                std::cout << " Message is ["<< raw_msg.buffer()<< "], length "<< raw_msg.length() << ", total="<< dur<< std::endl;
-            }
+            std::cout << " Message is ["<< raw_msg<< "], length "<< raw_msg_size << ", total="<< dur<< std::endl;
         }
 
         { /// measure latency
             using LatencyT = std::vector<uint64_t>;
             LatencyT lat_data;
             lat_data.reserve(BENCHMARK_DATA_COUNT);
-            auto msg = create_MDSubscription(parser);
-            auto raw_msg = FIXParser::serialize(msg, true, true);
             uint64_t dur = 0;
             auto start_tm = std::chrono::high_resolution_clock::now();
             for (size_t i = 0; i < BENCHMARK_DATA_COUNT; ++i) {
                 {
-                    auto res = parser.parse(raw_msg);
+                    auto res = parser.parse(raw_msg, raw_msg_size);
                     dur += static_cast<int>(res.protocol());
                 }
                 auto finish_tm = std::chrono::high_resolution_clock::now();
@@ -306,14 +302,15 @@ namespace {
         FIXDictionary dict_fix44 = FIX44Builder::build();
         FIXParser parser(dict_fix44);
         uint64_t avg_nsec = 0;        
+        const char raw_msg[] = "8=FIX.4.4\0019=132\00135=D\00149=BenchSenderId\00156=BenchTargetId\00134=777\00152=20221005 12:44:55.123456\001"
+                "11=987654321\00154=1\00138=10.0\00144=100.0\00155=MSFT\00118=6\00140=2\00159=1\00110=183\001";
+        size_t raw_msg_size = sizeof(raw_msg)/sizeof(char);
         { /// measure throughput
-            auto msg = create_NewOrderSingle(parser);        
-            auto raw_msg = FIXParser::serialize(msg, true, true);
             uint64_t thoughput_nsec = 0, dur = 0;
             {
                 auto start_tm = std::chrono::high_resolution_clock::now();
                 for (size_t i = 0; i < BENCHMARK_DATA_COUNT; ++i) {
-                    auto res = parser.parse(raw_msg);
+                    auto res = parser.parse(raw_msg, raw_msg_size);
                     dur += static_cast<int>(res.protocol());
                 }
                 auto finish_tm = std::chrono::high_resolution_clock::now();
@@ -322,23 +319,18 @@ namespace {
             avg_nsec = thoughput_nsec/BENCHMARK_DATA_COUNT;
             std::cout << " Throughput of NewOrderSngl[D] parse " << BENCHMARK_DATA_COUNT << " time is " << thoughput_nsec
                       << " nsec, avg="<< avg_nsec<< "nsec per call"<< std::endl;
-            {
-                auto res = FIXParser::serialize(msg, true, true);
-                std::cout << " Message is ["<< raw_msg.buffer()<< "], length "<< raw_msg.length() << ", total="<< dur<< std::endl;
-            }
+            std::cout << " Message is ["<< raw_msg<< "], length "<< raw_msg_size << ", total="<< dur<< std::endl;
         }
 
         { /// measure latency
             using LatencyT = std::vector<uint64_t>;
             LatencyT lat_data;
             lat_data.reserve(BENCHMARK_DATA_COUNT);
-            auto msg = create_NewOrderSingle(parser);
-            auto raw_msg = FIXParser::serialize(msg, true, true);
             uint64_t dur = 0;
             auto start_tm = std::chrono::high_resolution_clock::now();
             for (size_t i = 0; i < BENCHMARK_DATA_COUNT; ++i) {
                 {
-                    auto res = parser.parse(raw_msg);
+                    auto res = parser.parse(raw_msg, raw_msg_size);
                     dur += static_cast<int>(res.protocol());
                 }
                 auto finish_tm = std::chrono::high_resolution_clock::now();
@@ -415,14 +407,17 @@ int main(int argc, char **argv) {
     int random_seed = 123456789; /// use predefined generator to test same sequence on each run
     std::srand(random_seed);
 
+    std::cout<< "======================================================================================="<< std::endl;
     //auto avg_timer_latency = benchmark_get_timer();
     benchmark_get_timer();
     // benchmark for plain message
     benchmark_create_empty_NewOrderSingle();
     benchmark_serialise_NewOrderSingle();
     benchmark_parse_NewOrderSingle();
-    // benchmark for message with groups
+    std::cout<< "----------------------------------------------------------------------------------------"<< std::endl;    
+    // benchmark for message with groups 
     benchmark_serialise_MDSubscription();
     benchmark_parse_MDSubscription();
+    std::cout<< "======================================================================================="<< std::endl;
     return 1;
 }

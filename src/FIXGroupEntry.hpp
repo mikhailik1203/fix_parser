@@ -56,7 +56,7 @@ namespace fix{
         void clear_tag(tag_id_t tag);
 
     protected:
-        bool set_value(const TagMetadata &meta, tag_id_t tag, std::string_view val);
+        bool set_value(const TagMetadata &meta, tag_id_t tag, MsgReceived &data);
 
     private:
         const FIXGroupMetadata &meta_;
@@ -70,7 +70,6 @@ namespace fix{
         std::vector<FIXDate> tag_date_values_;
         std::vector<FIXDatetime> tag_datetime_values_;
         std::vector<FIXRawData> tag_rawdata_values_;
-        //std::string buffer_;
     };
 
     static FIXGroupEntry DUMMY_GROUP_ENTRY(DUMMY_GROUP_METADATA);

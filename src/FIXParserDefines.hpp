@@ -5,6 +5,8 @@
 #include <vector>
 
 namespace fix{
+    class FIXParser;
+
     enum class FIXProtocol{
         invalid = 0,
         FIX44,
@@ -25,7 +27,8 @@ namespace fix{
 
         MarketDataRequest,
 
-        UserDefined
+        CustomDefined, // other messages
+        UserDefined //message started from U
     };
 
     using tag_id_t = uint32_t;
@@ -53,7 +56,7 @@ namespace fix{
         RAWDATALEN,
         RAWDATA,
         GROUP
-    };
+    }; 
 
     struct FIXString{
         const std::string_view &value()const{return value_;}
@@ -78,9 +81,8 @@ namespace fix{
     // contains data buffer with FIX message and preparsed FIX parameters, used to construct FIXMessage
     struct FIXMsgBuffer{
     public:
-        static FIXMsgBuffer create_dummy();
+        // create instance from FIX message in raw text (during parsing)
         static FIXMsgBuffer create(const char *buffer, uint32_t length);
-        static FIXMsgBuffer create(std::vector<char> &&data, size_t start_pos, const FIXMsgType &type, const FIXProtocol &protocol);
 
         /// length of the message (number of bytes)
         uint32_t length()const noexcept{ return length_;}
@@ -93,6 +95,14 @@ namespace fix{
 
         // returns buffer with FIX message from first tag till last
         const char *buffer()const noexcept{ return buffer_;}
+
+    protected:
+        friend FIXParser;
+        // creates empty FIXMsgBuffer, used in case of the error
+        static FIXMsgBuffer create_dummy();
+        // creates instance with serialized FIX message
+        static FIXMsgBuffer create(std::vector<char> &&data, size_t start_pos, const FIXMsgType &type, const FIXProtocol &protocol);
+
     private:
         std::vector<char> data_;
         FIXMsgType type_;

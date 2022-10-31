@@ -184,42 +184,41 @@ bool FIXGroupEntry::set_rawdata(tag_id_t tag, const FIXRawData &val){
     return ::set_value(meta_, tag_rawdata_values_, available_tags_, FIXTagType::RAWDATA, tag, val);
 }
 
-bool FIXGroupEntry::set_value(const TagMetadata &tag_meta, tag_id_t tag, std::string_view val){
+bool FIXGroupEntry::set_value(const TagMetadata &tag_meta, tag_id_t tag, MsgReceived &data){
     switch(tag_meta.type_){
         case FIXTagType::BOOL:{
-            bool v = (1 == val.size()) && ('Y' == *val.begin());
+            bool v = data.parse_bool_value();
             return ::set_value(tag_meta, tag_char_values_, available_tags_, tag, (v)?('Y'):('N'));
         }   
         break;
         case FIXTagType::CHAR:{
-            return ::set_value(tag_meta, tag_char_values_, available_tags_, tag, *val.begin());
+            return ::set_value(tag_meta, tag_char_values_, available_tags_, tag, data.parse_char_value());
         }   
         break;
         case FIXTagType::INT:
         case FIXTagType::RAWDATALEN:
         {
-            int v = atoi(val.data());
-            return ::set_value(tag_meta, tag_int_values_, available_tags_, tag, v);
+            return ::set_value(tag_meta, tag_int_values_, available_tags_, tag, data.parse_int_value());
         }   
         break;
         case FIXTagType::STRING:{
-            return ::set_value(tag_meta, tag_string_values_, available_tags_, tag, FIXString{val});
+            return ::set_value(tag_meta, tag_string_values_, available_tags_, tag, FIXString{data.parse_value()});
         }
         break;
         case FIXTagType::DOUBLE:{
-            return ::set_value(tag_meta, tag_double_values_, available_tags_, tag, FIXDouble{val});
+            return ::set_value(tag_meta, tag_double_values_, available_tags_, tag, FIXDouble{data.parse_value()});
         }
         break;
         case FIXTagType::DATE:{
-            return ::set_value(tag_meta, tag_date_values_, available_tags_, tag, FIXDate{val});
+            return ::set_value(tag_meta, tag_date_values_, available_tags_, tag, FIXDate{data.parse_value()});
         }
         break;
         case FIXTagType::DATETIME:{
-            return ::set_value(tag_meta, tag_datetime_values_, available_tags_, tag, FIXDatetime{val});
+            return ::set_value(tag_meta, tag_datetime_values_, available_tags_, tag, FIXDatetime{data.parse_value()});
         }
         break;
         case FIXTagType::RAWDATA:{
-            return ::set_value(tag_meta, tag_rawdata_values_, available_tags_, tag, FIXRawData{val});
+            return ::set_value(tag_meta, tag_rawdata_values_, available_tags_, tag, FIXRawData{data.parse_value()});
         }
         break;
         case FIXTagType::GROUP:{

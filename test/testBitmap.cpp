@@ -48,6 +48,34 @@ TEST(TestToString, vanilla){
     }
     {
         std::vector<char> buf;
+        fix::to_string(12, buf);
+        EXPECT_EQ(3, buf.size());
+        EXPECT_EQ('1', buf[0]);
+        EXPECT_EQ('2', buf[1]);
+        EXPECT_EQ(1, buf[2]);
+    }
+    {
+        std::vector<char> buf;
+        fix::to_string(123, buf);
+        EXPECT_EQ(4, buf.size());
+        EXPECT_EQ('1', buf[0]);
+        EXPECT_EQ('2', buf[1]);
+        EXPECT_EQ('3', buf[2]);
+        EXPECT_EQ(1, buf[3]);
+    }
+    {
+        std::vector<char> buf;
+        fix::to_string(1234, buf);
+        EXPECT_EQ(5, buf.size());
+        EXPECT_EQ('1', buf[0]);
+        EXPECT_EQ('2', buf[1]);
+        EXPECT_EQ('3', buf[2]);
+        EXPECT_EQ('4', buf[3]);
+        EXPECT_EQ(1, buf[4]);
+    }
+
+    {
+        std::vector<char> buf;
         fix::to_string(2111222333, buf);
         EXPECT_EQ(11, buf.size());
         EXPECT_EQ('2', buf[0]);

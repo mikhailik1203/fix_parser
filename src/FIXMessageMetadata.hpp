@@ -51,15 +51,14 @@ namespace fix{
     private:
         void process_tag(const FIXDictionary &dict, const FIXTagVocabulary &vocab, tag_id_t tag_id);
         void process_block(const FIXDictionary &dict, const FIXTagVocabulary &vocab, block_id_t block_id);
-        bool set_tag_value(const fix::TagMetadata &meta_data, size_t &tag_id, std::string_view val, 
-                                     MsgReceived &data, FIXMessage &msg)const;
+        bool set_tag_value(const fix::TagMetadata &meta_data, size_t &tag_id, MsgReceived &data, FIXMessage &msg)const;
 
     private:
         std::string name_;
         std::string msgtype_;
         FIXMsgType msg_type_;
         FIXProtocol protocol_;
-        location_id_t location_id_;
+        location_id_t location_id_; 
 
         using TagsMetadataT = std::vector<TagMetadata>; // order of tags is important
         using TagToMetaIndexT = std::unordered_map<tag_id_t, int>; //tag_id to the index
@@ -78,6 +77,8 @@ namespace fix{
     };
 
     using FIXMsgMetadatasT = std::unordered_map<std::string, FIXMessageMetadata>;
+    using FIXMsgTypeMetadatasT = std::unordered_map<FIXMessageType, FIXMessageMetadata>;
+    
 
     static const FIXMessageMetadata DUMMY_FIXMSG_METADATA;
 }

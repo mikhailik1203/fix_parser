@@ -34,7 +34,11 @@ namespace fix{
 
         // parses value till len and returns start position and size
         // returns empty string_view and sets error_ field in case of error
-        std::string_view parse_rawdata_value(const std::string_view &len);
+        std::string_view parse_rawdata_value(int raw_len);
+
+        bool parse_bool_value();
+        char parse_char_value();
+        int parse_int_value();
     };
 
     // serialize val to the string and adds <SOH> to the end
@@ -44,4 +48,5 @@ namespace fix{
 
     // parses val to the integer value
     int string_to_int_positive(const std::string_view &val);
+    int string_to_int(const std::string_view &val);
 }

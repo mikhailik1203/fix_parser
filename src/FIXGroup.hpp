@@ -24,6 +24,7 @@ namespace fix{
         const FIXGroupEntry &entry(entry_id_t id)const noexcept;
         FIXGroupEntry &entry(entry_id_t id) noexcept;
         FIXGroupEntry &add_entry();
+        void set_size(entry_size_t count);
         void clear_entries() noexcept;
 
     public:

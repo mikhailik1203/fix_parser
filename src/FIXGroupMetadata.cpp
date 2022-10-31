@@ -246,10 +246,12 @@ void FIXGroupMetadata::serialize(const FIXGroupEntry &data, std::vector<char> &b
     }
 }
 
-bool FIXGroupMetadata::set_tag_value(const fix::TagMetadata &meta_data, size_t &tag_id, std::string_view val, 
+bool FIXGroupMetadata::set_tag_value(const fix::TagMetadata &meta_data, size_t &tag_id, 
                                      MsgReceived &data, FIXGroupEntry &entry, FIXGroup &grp)const{
     if(FIXTagType::GROUP != meta_data.type_){
-        entry.set_value(meta_data, tag_id, val);
+        entry.set_value(meta_data, tag_id, data);
+        if(!data.error_.empty())
+            return false;
         if(FIXTagType::RAWDATALEN == meta_data.type_){
             auto raw_tag_id = data.current_tag_id();
             if(0 == raw_tag_id || !data.error_.empty())
@@ -264,16 +266,19 @@ bool FIXGroupMetadata::set_tag_value(const fix::TagMetadata &meta_data, size_t &
                     data.error_ = "Next tag after RAWDATALEN is not RAWDATA!";
                     return false; // next tag should be raw data!
                 }
-                auto raw_val = data.parse_rawdata_value(val);
+                auto raw_val = data.parse_rawdata_value(entry.get_int(tag_id));
                 if(!data.error_.empty())
                     return false;
-                entry.set_value(meta_data, raw_tag_id, raw_val);
+                entry.set_rawdata(raw_tag_id, FIXRawData{raw_val});
                 tag_id = raw_tag_id;
             }
         }
     }else{
+        int grp_count = data.parse_int_value();
+        if(0 == grp_count || !data.error_.empty())
+            return false;
         const auto &grp_meta = tag_group_values_[meta_data.value_index_];
-        grp_meta.first.parse(data, entry.get_group(tag_id), string_to_int_positive(val));
+        grp_meta.first.parse(data, entry.get_group(tag_id), grp_count);
     }
     return true;
 }
@@ -289,11 +294,7 @@ bool FIXGroupMetadata::process_entry(size_t &tag_id, MsgReceived &data, FIXGroup
                 return false; // tag_id is not related to this group - finished parsing this group
             }
             const auto &meta_data = tag_metadata_[meta_it->second];
-            auto val = data.parse_value();
-            if(!data.error_.empty())
-                return false;
-
-            if (!set_tag_value(meta_data, tag_id, val, data, entry, grp)){
+            if (!set_tag_value(meta_data, tag_id, data, entry, grp)){
                 return false;
             }
         }
@@ -327,10 +328,9 @@ FIXGroup FIXGroupMetadata::parse(MsgReceived &data)const{
         const auto &meta_data = tag_metadata_[meta_it->second];
 
         auto &entry = grp.entry(i);
-        auto val = data.parse_value();
+        entry.set_value(meta_data, tag_id, data);
         if(!data.error_.empty())
             return grp;
-        entry.set_value(meta_data, tag_id, val);
 
         if(!process_entry(tag_id, data, entry, grp)){
             return grp;
@@ -340,6 +340,7 @@ FIXGroup FIXGroupMetadata::parse(MsgReceived &data)const{
 }
 
 bool FIXGroupMetadata::parse(MsgReceived &data, FIXGroup &grp, size_t entry_count)const{
+    grp.set_size(entry_count);
     for(size_t i = 0; i < entry_count; ++i){
         size_t tag_id = data.current_tag_id();
         if(0 == tag_id || !data.error_.empty())
@@ -357,11 +358,10 @@ bool FIXGroupMetadata::parse(MsgReceived &data, FIXGroup &grp, size_t entry_coun
         }
         const auto &meta_data = tag_metadata_[meta_it->second];
 
-        auto &entry = grp.add_entry();
-        auto val = data.parse_value();
+        auto &entry = grp.entry(i);
+        entry.set_value(meta_data, tag_id, data);
         if(!data.error_.empty())
             return false;
-        entry.set_value(meta_data, tag_id, val);
         if(!process_entry(tag_id, data, entry, grp)){
             return true;
         }

@@ -44,6 +44,12 @@ FIXGroupEntry &FIXGroup::add_entry(){
     return entries_.back();
 }
 
+void FIXGroup::set_size(entry_size_t count){
+    for(size_t i = entries_.size(); i < count; ++i){
+        entries_.emplace_back(meta_);
+    }
+}
+
 void FIXGroup::clear_entries() noexcept{
     entries_.clear();
     entries_.reserve(RESERVE_GROUP_SIZE);
