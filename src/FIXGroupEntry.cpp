@@ -78,7 +78,7 @@ FIXGroupEntry::FIXGroupEntry(const FIXGroupMetadata &meta):
     }
 }
 
-FIXGroupEntry::FIXGroupEntry(FIXGroupEntry &&val): meta_(val.meta_){
+FIXGroupEntry::FIXGroupEntry(FIXGroupEntry &&val)noexcept : meta_(val.meta_){
     //std::swap(buffer_, val.buffer_);
     std::swap(tag_char_values_, val.tag_char_values_);
     std::swap(tag_int_values_, val.tag_int_values_);
@@ -91,52 +91,52 @@ FIXGroupEntry::FIXGroupEntry(FIXGroupEntry &&val): meta_(val.meta_){
     std::swap(available_tags_, val.available_tags_);
 }
 
-bool FIXGroupEntry::has_tag(tag_id_t tag)const{
+bool FIXGroupEntry::has_tag(tag_id_t tag)const noexcept{
     const auto &tag_meta = meta_.tag_metadata(tag);
     return available_tags_.is_set(tag_meta.tag_position_);
 }
 
-bool FIXGroupEntry::support_tag(tag_id_t tag)const{
+bool FIXGroupEntry::support_tag(tag_id_t tag)const  noexcept{
     return meta_.support_tag(tag);
 }
 
-FIXTagType FIXGroupEntry::tag_type(tag_id_t tag)const{
+FIXTagType FIXGroupEntry::tag_type(tag_id_t tag)const noexcept{
     return meta_.tag_type(tag);
 }
 
-bool FIXGroupEntry::get_bool(tag_id_t tag)const{
+bool FIXGroupEntry::get_bool(tag_id_t tag)const noexcept{
     return 'Y' == get_value<char>(meta_, tag_char_values_, available_tags_, FIXTagType::BOOL, tag);
 }
 
-char FIXGroupEntry::get_char(tag_id_t tag)const{
+char FIXGroupEntry::get_char(tag_id_t tag)const noexcept{
     return 'Y' == get_value<char>(meta_, tag_char_values_, available_tags_, FIXTagType::CHAR, tag);
 }
 
-int FIXGroupEntry::get_int(tag_id_t tag)const{
+int FIXGroupEntry::get_int(tag_id_t tag)const noexcept{
     return get_value<int>(meta_, tag_int_values_, available_tags_, FIXTagType::INT, FIXTagType::RAWDATALEN, tag);
 }
 
-const FIXDouble &FIXGroupEntry::get_double(tag_id_t tag)const{
+const FIXDouble &FIXGroupEntry::get_double(tag_id_t tag)const noexcept{
     return get_value<FIXDouble>(meta_, tag_double_values_, available_tags_, FIXTagType::DOUBLE, tag);
 }
 
-const FIXString &FIXGroupEntry::get_string(tag_id_t tag)const{
+const FIXString &FIXGroupEntry::get_string(tag_id_t tag)const noexcept{
     return get_value<FIXString>(meta_, tag_string_values_, available_tags_, FIXTagType::STRING, tag);
 }
 
-const FIXDate &FIXGroupEntry::get_date(tag_id_t tag)const{
+const FIXDate &FIXGroupEntry::get_date(tag_id_t tag)const noexcept{
     return get_value<FIXDate>(meta_, tag_date_values_, available_tags_, FIXTagType::DATE, tag);
 }
 
-const FIXDatetime &FIXGroupEntry::get_datetime(tag_id_t tag)const{
+const FIXDatetime &FIXGroupEntry::get_datetime(tag_id_t tag)const noexcept{
     return get_value<FIXDatetime>(meta_, tag_datetime_values_, available_tags_, FIXTagType::DATETIME, tag);
 }
 
-const FIXRawData &FIXGroupEntry::get_rawdata(tag_id_t tag)const{
+const FIXRawData &FIXGroupEntry::get_rawdata(tag_id_t tag)const noexcept{
     return get_value<FIXRawData>(meta_, tag_rawdata_values_, available_tags_, FIXTagType::RAWDATA, tag);
 }
 
-const FIXGroup &FIXGroupEntry::get_group(tag_id_t tag)const{
+const FIXGroup &FIXGroupEntry::get_group(tag_id_t tag)const noexcept{
     const auto &tag_meta = meta_.tag_metadata(tag);
     if(!available_tags_.is_set(tag_meta.tag_position_) || FIXTagType::GROUP != tag_meta.type_ || tag_group_values_.size() <= tag_meta.value_index_){
         static FIXGroup empty(DUMMY_GROUP_METADATA, 0);
@@ -237,7 +237,7 @@ void FIXGroupEntry::clear_tag(tag_id_t tag){
     available_tags_.unset(tag_meta.tag_position_);
 }
 
-void FIXGroupEntry::serialize(std::vector<char> &buffer)const{
+void FIXGroupEntry::serialize(MsgSerialised &buffer)const{
     meta_.serialize(*this, buffer);
 }
 

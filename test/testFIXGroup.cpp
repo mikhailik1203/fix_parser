@@ -22,9 +22,11 @@ TEST(TestFIXGroup, serialize_empty){
     EXPECT_EQ(fix44_gen::MDEntryType, test_grp.start_entry_tag());
     EXPECT_EQ(0, test_grp.size());
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(128);
     test_grp.serialize(buffer);
-    EXPECT_EQ(0, buffer.size());
+    EXPECT_EQ(0, buffer.pos_);
+    EXPECT_EQ("", buffer.to_string());
+    EXPECT_EQ("", buffer.error_);
 }
 
 TEST(TestFIXGroup, serialize_single_entry){
@@ -39,10 +41,11 @@ TEST(TestFIXGroup, serialize_single_entry){
     EXPECT_TRUE(grp_entry.set_int(fix44_gen::MDEntryType, 7));
     EXPECT_EQ(1, test_grp.size());
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(128);
     test_grp.serialize(buffer);
-    EXPECT_EQ(12, buffer.size());
-    EXPECT_EQ("267=1\001269=7\001", std::string(buffer.begin(), buffer.end()));
+    EXPECT_EQ(12, buffer.pos_);
+    EXPECT_EQ("267=1\001269=7\001", buffer.to_string());
+    EXPECT_EQ("", buffer.error_);
 }
 
 TEST(TestFIXGroup, serialize_multiple_entries){
@@ -76,10 +79,11 @@ TEST(TestFIXGroup, serialize_multiple_entries){
 
     EXPECT_EQ(5, test_grp.size());
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(128);
     test_grp.serialize(buffer);
-    EXPECT_EQ(41, buffer.size());
-    EXPECT_EQ("267=5\001269=17\001269=27\001269=37\001269=47\001269=57\001", std::string(buffer.begin(), buffer.end()));
+    EXPECT_EQ(41, buffer.pos_);
+    EXPECT_EQ("267=5\001269=17\001269=27\001269=37\001269=47\001269=57\001", buffer.to_string());
+    EXPECT_EQ("", buffer.error_);
 }
 
 TEST(TestFIXGroup, parse_single_entry){
@@ -361,11 +365,11 @@ TEST(TestFIXGroup, serialize_TestGrp1_multiple_tags){
     EXPECT_TRUE(entry.set_rawdata(fixTest_gen::RawDataTag1, {"\001\002Some test value\001\002"}));
     EXPECT_EQ(1, test_grp.size());
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(128);
     test_grp.serialize(buffer);
-    EXPECT_EQ(115, buffer.size());
+    EXPECT_EQ(115, buffer.pos_);
     EXPECT_EQ("28=1\x1" "29=123\x1" "4=Y\x1" "7=123.456\x1" "13=Some Test value\x1" "16=20221029\x1" 
-            "19=20221029 10:56:34.123456\x1" "22=100\x1" "23=\x1\x2Some test value\x1\x2\x1", std::string(buffer.begin(), buffer.end()));
+            "19=20221029 10:56:34.123456\x1" "22=100\x1" "23=\x1\x2Some test value\x1\x2\x1", buffer.to_string());
 }
 
 TEST(TestFIXGroup, serialize_TestGrp2_multiple_blocks){
@@ -402,12 +406,12 @@ TEST(TestFIXGroup, serialize_TestGrp2_multiple_blocks){
         EXPECT_TRUE(entry.set_bool(fixTest_gen::BoolTag2, false));
         EXPECT_EQ(2, test_grp.size());
     }
-    std::vector<char> buffer;
+    MsgSerialised buffer(256);
     test_grp.serialize(buffer);
-    EXPECT_EQ(151, buffer.size());
+    EXPECT_EQ(151, buffer.pos_);
     EXPECT_EQ("30=2\x1" "31=123\x1" "1=-323\x1" "4=Y\x1" "7=123.456\x1" "13=Some Test value\x1" "16=20221029\x1" 
         "19=20221029 10:56:34.123456\x1" "22=100\x1" "23=\x1\x2Some test value\x1\x2\x1" "2=223\x1" "5=N\x1" 
-        "31=1123\x1" "2=1223\x1" "5=N\x1", std::string(buffer.begin(), buffer.end()));
+        "31=1123\x1" "2=1223\x1" "5=N\x1", buffer.to_string());
 }
 
 TEST(TestFIXGroup, serialize_TestGrp3_nested_groups){
@@ -452,11 +456,11 @@ TEST(TestFIXGroup, serialize_TestGrp3_nested_groups){
     }
     EXPECT_EQ(1, test_grp.size());
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(128);
     test_grp.serialize(buffer);
-    EXPECT_EQ(106, buffer.size());
+    EXPECT_EQ(106, buffer.pos_);
     EXPECT_EQ("32=1\x1" "33=123\x1" "28=2\x1" "29=111\x1" "13=Nested grp1 entry1\x1" "29=112\x1" "13=Nested grp1 entry2\x1" 
-            "30=2\x1" "31=121\x1" "2=721\x1" "31=122\x1" "2=722\x1", std::string(buffer.begin(), buffer.end()));
+            "30=2\x1" "31=121\x1" "2=721\x1" "31=122\x1" "2=722\x1", buffer.to_string());
 }
 
 TEST(TestFIXGroup, parse_TestGrp1_multiple_tags){

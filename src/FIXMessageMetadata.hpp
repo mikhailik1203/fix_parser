@@ -30,8 +30,8 @@ namespace fix{
         FIXMessage parse(MsgReceived &data)const;
 
     public:
-        bool support_tag(tag_id_t tag)const;
-        FIXTagType tag_type(tag_id_t tag)const;
+        bool support_tag(tag_id_t tag)const noexcept;
+        FIXTagType tag_type(tag_id_t tag)const noexcept;
 
         inline size_t tag_char_count()const noexcept{return tag_char_count_;}
         inline size_t tag_int_count()const noexcept{return tag_int_count_;}
@@ -46,7 +46,7 @@ namespace fix{
 
         size_t tags_count()const noexcept{ return tag_metadata_.size();}
     public:
-        void serialize(const FIXMessage &data, std::vector<char> &buffer)const;
+        void serialize(const FIXMessage &data, MsgSerialised &buffer)const;
 
     private:
         void process_tag(const FIXDictionary &dict, const FIXTagVocabulary &vocab, tag_id_t tag_id);

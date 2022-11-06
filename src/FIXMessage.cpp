@@ -77,8 +77,7 @@ FIXMessage::FIXMessage(const FIXMessageMetadata &meta): meta_(meta){
     }
 }
 
-FIXMessage::FIXMessage(FIXMessage &&val): meta_(val.meta_){
-    //std::swap(buffer_, val.buffer_);
+FIXMessage::FIXMessage(FIXMessage &&val)noexcept : meta_(val.meta_){
     std::swap(tag_char_values_, val.tag_char_values_);
     std::swap(tag_int_values_, val.tag_int_values_);
     std::swap(tag_double_values_, val.tag_double_values_);
@@ -91,60 +90,60 @@ FIXMessage::FIXMessage(FIXMessage &&val): meta_(val.meta_){
     std::swap(raw_msg_data_, val.raw_msg_data_);
 }
 
-FIXProtocol FIXMessage::protocol()const{
+FIXProtocol FIXMessage::protocol()const noexcept{
     return meta_.protocol();
 }
 
-const FIXMsgType &FIXMessage::message_type()const{
+const FIXMsgType &FIXMessage::message_type()const noexcept{
     return meta_.msg_type();
 }
 
-bool FIXMessage::has_tag(tag_id_t tag)const{
+bool FIXMessage::has_tag(tag_id_t tag)const noexcept{
     const auto &tag_meta = meta_.tag_metadata(tag);
     return available_tags_.is_set(tag_meta.tag_position_);
 }
 
-bool FIXMessage::support_tag(tag_id_t tag)const{
+bool FIXMessage::support_tag(tag_id_t tag)const noexcept{
     return meta_.support_tag(tag);
 }
 
-FIXTagType FIXMessage::tag_type(tag_id_t tag)const{
+FIXTagType FIXMessage::tag_type(tag_id_t tag)const noexcept{
     return meta_.tag_type(tag);
 }
 
-bool FIXMessage::get_bool(tag_id_t tag)const{
+bool FIXMessage::get_bool(tag_id_t tag)const noexcept{
     return 'Y' == get_value<char>(meta_, tag_char_values_, available_tags_, FIXTagType::BOOL, tag);
 }
 
-char FIXMessage::get_char(tag_id_t tag)const{
+char FIXMessage::get_char(tag_id_t tag)const noexcept{
     return get_value<char>(meta_, tag_char_values_, available_tags_, FIXTagType::CHAR, tag);
 }
 
-int FIXMessage::get_int(tag_id_t tag)const{
+int FIXMessage::get_int(tag_id_t tag)const noexcept{
     return get_value<int>(meta_, tag_int_values_, available_tags_, FIXTagType::INT, FIXTagType::RAWDATALEN, tag);
 }
 
-const FIXDouble &FIXMessage::get_double(tag_id_t tag)const{
+const FIXDouble &FIXMessage::get_double(tag_id_t tag)const noexcept{
     return get_value<FIXDouble>(meta_, tag_double_values_, available_tags_, FIXTagType::DOUBLE, tag);
 }
 
-const FIXString &FIXMessage::get_string(tag_id_t tag)const{
+const FIXString &FIXMessage::get_string(tag_id_t tag)const noexcept{
     return get_value<FIXString>(meta_, tag_string_values_, available_tags_, FIXTagType::STRING, tag);
 }
 
-const FIXDate &FIXMessage::get_date(tag_id_t tag)const{
+const FIXDate &FIXMessage::get_date(tag_id_t tag)const noexcept{
     return get_value<FIXDate>(meta_, tag_date_values_, available_tags_, FIXTagType::DATE, tag);
 }
 
-const FIXDatetime &FIXMessage::get_datetime(tag_id_t tag)const{
+const FIXDatetime &FIXMessage::get_datetime(tag_id_t tag)const noexcept{
     return get_value<FIXDatetime>(meta_, tag_datetime_values_, available_tags_, FIXTagType::DATETIME, tag);
 }
 
-const FIXRawData &FIXMessage::get_rawdata(tag_id_t tag)const{
+const FIXRawData &FIXMessage::get_rawdata(tag_id_t tag)const noexcept{
     return get_value<FIXRawData>(meta_, tag_rawdata_values_, available_tags_, FIXTagType::RAWDATA, tag);
 }
 
-const FIXGroup &FIXMessage::get_group(tag_id_t tag)const{
+const FIXGroup &FIXMessage::get_group(tag_id_t tag)const noexcept{
     const auto &tag_meta = meta_.tag_metadata(tag);
     if(!available_tags_.is_set(tag_meta.tag_position_) || FIXTagType::GROUP != tag_meta.type_ || tag_group_values_.size() <= tag_meta.value_index_){
         static FIXGroup empty(DUMMY_GROUP_METADATA, 0);
@@ -193,7 +192,7 @@ bool FIXMessage::set_rawdata(tag_id_t tag, const FIXRawData &val){
     return ::set_value(meta_, tag_rawdata_values_, available_tags_, FIXTagType::RAWDATA, tag, val);
 }
 
-void FIXMessage::clear_tag(tag_id_t tag){
+void FIXMessage::clear_tag(tag_id_t tag) noexcept{
     const auto &tag_meta = meta_.tag_metadata(tag);
     available_tags_.unset(tag_meta.tag_position_);
 }
@@ -247,6 +246,6 @@ bool FIXMessage::set_value(const TagMetadata &tag_meta, tag_id_t tag, MsgReceive
     return true;
 }
 
-void FIXMessage::serialize(std::vector<char> &buffer)const{
+void FIXMessage::serialize(MsgSerialised &buffer)const{
     meta_.serialize(*this, buffer);
 }

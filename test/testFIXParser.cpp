@@ -23,7 +23,7 @@ TEST(TestFIXParser, serialize_UT1){
         test_msg.set_rawdata(fixTest_gen::RawDataTag1, {"\001\002raw data \001\002"});
     }
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(128, 0);
     test_msg.serialize(buffer);
 
     auto res = FIXParser::serialize(test_msg, true, true);

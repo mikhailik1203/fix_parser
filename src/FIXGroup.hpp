@@ -14,8 +14,8 @@ namespace fix{
         ~FIXGroup() = default;
         FIXGroup(const FIXGroup &) = default;
         FIXGroup &operator=(const FIXGroup &) = delete;
-        FIXGroup(FIXGroup &&) = default;
-        FIXGroup &operator=(FIXGroup &&) = delete;
+        FIXGroup(FIXGroup &&) noexcept = default;
+        FIXGroup &operator=(FIXGroup &&) noexcept = delete;
 
         tag_id_t leading_tag()const noexcept;
         tag_id_t start_entry_tag()const noexcept;
@@ -35,7 +35,7 @@ namespace fix{
         static FIXGroup parse(const FIXDictionary &dict, MsgReceived &data);
 
         // serializes group entry data to the sequence of bytes
-        void serialize(std::vector<char> &buffer)const;
+        void serialize(MsgSerialised &buffer)const;
 
     private:    
         const FIXGroupMetadata &meta_;

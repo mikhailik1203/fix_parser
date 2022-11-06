@@ -63,11 +63,11 @@ FIXMessageMetadata::FIXMessageMetadata(const std::string &name, const FIXDiction
     }
 }
 
-bool FIXMessageMetadata::support_tag(tag_id_t tag)const{
+bool FIXMessageMetadata::support_tag(tag_id_t tag)const noexcept{
     return tag_to_meta_idx_.end() != tag_to_meta_idx_.find(tag);
 }
 
-FIXTagType FIXMessageMetadata::tag_type(tag_id_t tag)const{
+FIXTagType FIXMessageMetadata::tag_type(tag_id_t tag)const noexcept{
     auto it = tag_to_meta_idx_.find(tag);
     if(tag_to_meta_idx_.end() != it){
         return tag_metadata_[it->second].type_;
@@ -179,74 +179,62 @@ FIXMessage FIXMessageMetadata::create()const{
     return msg;
 }
 
-void FIXMessageMetadata::serialize(const FIXMessage &data, std::vector<char> &buffer)const{
+void FIXMessageMetadata::serialize(const FIXMessage &data, MsgSerialised &buffer)const{
     // add MsgType tag and value
-    buffer.insert(buffer.end(), msgtype_.begin(), msgtype_.end());
+    buffer.append(msgtype_);
     for(const auto &tag_meta: tag_metadata_){
-        if(!data.available_tags_.is_set(tag_meta.tag_position_)){
-            continue;
-        }
-        buffer.insert(buffer.end(), tag_meta.tag_prefix_.begin(), tag_meta.tag_prefix_.end());
-        switch(tag_meta.type_){
-            case FIXTagType::BOOL:
-            case FIXTagType::CHAR:{
-                const auto &val = data.tag_char_values_[tag_meta.value_index_];                
-                buffer.push_back(val);
-                buffer.push_back(1);
-            }
-            break;
-            case FIXTagType::RAWDATALEN:
-            case FIXTagType::INT:{
-                const auto &val = data.tag_int_values_[tag_meta.value_index_];
-                to_string(val, buffer);
-            }   
-            break;
-            case FIXTagType::DOUBLE:{
-                const auto &val = data.tag_double_values_[tag_meta.value_index_];
-                const auto &str_val = val.to_string();
-                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
-                buffer.push_back(1);
-            }
-            break;
-            case FIXTagType::STRING:{
-                const auto &val = data.tag_string_values_[tag_meta.value_index_];
-                const auto &str_val = val.to_string();
-                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
-                buffer.push_back(1);
-            }
-            break;
-            case FIXTagType::DATE:{
-                const auto &val = data.tag_date_values_[tag_meta.value_index_];
-                const auto &str_val = val.to_string();
-                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
-                buffer.push_back(1);
-            }
-            break;
-            case FIXTagType::DATETIME:{
-                const auto &val = data.tag_datetime_values_[tag_meta.value_index_];
-                const auto &str_val = val.to_string();
-                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
-                buffer.push_back(1);
-            }
-            break;
-            case FIXTagType::RAWDATA:{
-                const auto &val = data.tag_rawdata_values_[tag_meta.value_index_];
-                const auto &str_val = val.to_string();
-                buffer.insert(buffer.end(), str_val.begin(), str_val.end());
-                buffer.push_back(1);
-            }
-            break;
-            case FIXTagType::GROUP:{
-                const auto &val = data.tag_group_values_[tag_meta.value_index_];
-                if(0 < val.size()){
-                    val.serialize(buffer);
+        if(data.available_tags_.is_set(tag_meta.tag_position_)){
+            buffer.append(tag_meta.tag_prefix_);
+            switch(tag_meta.type_){
+                case FIXTagType::BOOL:
+                case FIXTagType::CHAR:{
+                    const auto &val = data.tag_char_values_[tag_meta.value_index_];                
+                    buffer.append(val);
                 }
-            }
-            break;
-            default:
-                throw std::runtime_error("FIXMessageMetadata::serialize: Type for tag [" + 
-                        std::to_string(tag_meta.tag_id_) + "] is not supported!" );
-        };
+                break;
+                case FIXTagType::RAWDATALEN:
+                case FIXTagType::INT:{
+                    const auto &val = data.tag_int_values_[tag_meta.value_index_];
+                    buffer.append(val);
+                }   
+                break;
+                case FIXTagType::DOUBLE:{
+                    const auto &val = data.tag_double_values_[tag_meta.value_index_];
+                    buffer.append(val);
+                }
+                break;
+                case FIXTagType::STRING:{
+                    const auto &val = data.tag_string_values_[tag_meta.value_index_];
+                    buffer.append(val);
+                }
+                break;
+                case FIXTagType::DATE:{
+                    const auto &val = data.tag_date_values_[tag_meta.value_index_];
+                    buffer.append(val);
+                }
+                break;
+                case FIXTagType::DATETIME:{
+                    const auto &val = data.tag_datetime_values_[tag_meta.value_index_];
+                    buffer.append(val);
+                }
+                break;
+                case FIXTagType::RAWDATA:{
+                    const auto &val = data.tag_rawdata_values_[tag_meta.value_index_];
+                    buffer.append(val);
+                }
+                break;
+                case FIXTagType::GROUP:{
+                    const auto &val = data.tag_group_values_[tag_meta.value_index_];
+                    if(0 < val.size()){
+                        val.serialize(buffer);
+                    }
+                }
+                break;
+                default:
+                    throw std::runtime_error("FIXMessageMetadata::serialize: Type for tag [" + 
+                            std::to_string(tag_meta.tag_id_) + "] is not supported!" );
+            };
+        }
     }
 }
 

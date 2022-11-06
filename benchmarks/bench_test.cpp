@@ -159,7 +159,7 @@ namespace {
                       << " nsec, avg="<< avg_nsec<< "nsec per call"<< std::endl;
             {
                 auto res = FIXParser::serialize(msg, true, true);
-                std::cout << " Message is ["<< res.buffer()<< "], length "<< res.length() << ", total="<< dur<< std::endl;
+                std::cout << " Message is ["<< res.to_string()<< "], length "<< res.length() << ", total="<< dur<< std::endl;
             }
         }
 
@@ -265,7 +265,7 @@ namespace {
                       << " nsec, avg="<< avg_nsec<< "nsec per call"<< std::endl;
             {
                 auto res = FIXParser::serialize(msg, true, true);
-                std::cout << " Message is ["<< res.buffer()<< "], length "<< res.length() << ", total="<< dur<< std::endl;
+                std::cout << " Message is ["<< res.to_string()<< "], length "<< res.length() << ", total="<< dur<< std::endl;
             }
         }
 

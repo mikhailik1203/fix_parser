@@ -15,31 +15,31 @@ namespace fix{
         ~FIXMessage() = default;
         FIXMessage(const FIXMessage &) = delete;
         FIXMessage &operator=(const FIXMessage &) = delete;
-        FIXMessage(FIXMessage &&);
-        FIXMessage &operator=(FIXMessage &&) = delete;
+        FIXMessage(FIXMessage &&)noexcept ;
+        FIXMessage &operator=(FIXMessage &&) noexcept = delete;
 
-        FIXProtocol protocol()const;
-        const FIXMsgType &message_type()const;
+        FIXProtocol protocol()const noexcept;
+        const FIXMsgType &message_type()const noexcept;
 
     public:
         // serializes group entry data to the sequence of bytes
-        void serialize(std::vector<char> &buffer)const;
+        void serialize(MsgSerialised &buffer)const;
 
     public:
-        bool has_tag(tag_id_t tag)const;
-        bool support_tag(tag_id_t tag)const;
-        FIXTagType tag_type(tag_id_t tag)const;
+        bool has_tag(tag_id_t tag)const noexcept;
+        bool support_tag(tag_id_t tag)const noexcept;
+        FIXTagType tag_type(tag_id_t tag)const noexcept;
 
     public:
-        bool get_bool(tag_id_t tag)const;
-        char get_char(tag_id_t tag)const;
-        int get_int(tag_id_t tag)const;
-        const FIXDouble &get_double(tag_id_t tag)const;
-        const FIXString &get_string(tag_id_t tag)const;
-        const FIXDate &get_date(tag_id_t tag)const;
-        const FIXDatetime &get_datetime(tag_id_t tag)const;
-        const FIXRawData &get_rawdata(tag_id_t tag)const;
-        const FIXGroup &get_group(tag_id_t tag)const;
+        bool get_bool(tag_id_t tag)const noexcept;
+        char get_char(tag_id_t tag)const noexcept;
+        int get_int(tag_id_t tag)const noexcept;
+        const FIXDouble &get_double(tag_id_t tag)const noexcept;
+        const FIXString &get_string(tag_id_t tag)const noexcept;
+        const FIXDate &get_date(tag_id_t tag)const noexcept;
+        const FIXDatetime &get_datetime(tag_id_t tag)const noexcept;
+        const FIXRawData &get_rawdata(tag_id_t tag)const noexcept;
+        const FIXGroup &get_group(tag_id_t tag)const noexcept;
         FIXGroup &get_group(tag_id_t tag);
 
         bool set_bool(tag_id_t tag, bool val);
@@ -51,7 +51,7 @@ namespace fix{
         bool set_datetime(tag_id_t tag, const FIXDatetime &val);
         bool set_rawdata(tag_id_t tag, const FIXRawData &val);
 
-        void clear_tag(tag_id_t tag);
+        void clear_tag(tag_id_t tag) noexcept;
 
     protected:
         bool set_value(const TagMetadata &meta, tag_id_t tag, MsgReceived &data);

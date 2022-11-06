@@ -17,31 +17,31 @@ namespace fix{
         ~FIXGroupEntry() = default;
         FIXGroupEntry(const FIXGroupEntry &) = delete;
         FIXGroupEntry &operator=(const FIXGroupEntry &) = delete;
-        FIXGroupEntry(FIXGroupEntry &&);
-        FIXGroupEntry &operator=(FIXGroupEntry &&) = delete;
+        FIXGroupEntry(FIXGroupEntry &&)noexcept ;
+        FIXGroupEntry &operator=(FIXGroupEntry &&) noexcept = delete;
 
-        tag_id_t group_tag()const;
-        entry_id_t entry_id()const;
+        tag_id_t group_tag()const noexcept;
+        entry_id_t entry_id()const noexcept;
 
     public:
         // serializes group entry data to the sequence of bytes
-        void serialize(std::vector<char> &buffer)const;
+        void serialize(MsgSerialised &buffer)const;
 
     public:
-        bool has_tag(tag_id_t tag)const;
-        bool support_tag(tag_id_t tag)const;
-        FIXTagType tag_type(tag_id_t tag)const;
+        bool has_tag(tag_id_t tag)const noexcept;
+        bool support_tag(tag_id_t tag)const noexcept;
+        FIXTagType tag_type(tag_id_t tag)const noexcept;
 
     public:
-        bool get_bool(tag_id_t tag)const;
-        char get_char(tag_id_t tag)const;
-        int get_int(tag_id_t tag)const;
-        const FIXDouble &get_double(tag_id_t tag)const;
-        const FIXString &get_string(tag_id_t tag)const;
-        const FIXDate &get_date(tag_id_t tag)const;
-        const FIXDatetime &get_datetime(tag_id_t tag)const;
-        const FIXRawData &get_rawdata(tag_id_t tag)const;
-        const FIXGroup &get_group(tag_id_t tag)const;
+        bool get_bool(tag_id_t tag)const noexcept;
+        char get_char(tag_id_t tag)const noexcept;
+        int get_int(tag_id_t tag)const noexcept;
+        const FIXDouble &get_double(tag_id_t tag)const noexcept;
+        const FIXString &get_string(tag_id_t tag)const noexcept;
+        const FIXDate &get_date(tag_id_t tag)const noexcept;
+        const FIXDatetime &get_datetime(tag_id_t tag)const noexcept;
+        const FIXRawData &get_rawdata(tag_id_t tag)const noexcept;
+        const FIXGroup &get_group(tag_id_t tag)const noexcept;
         FIXGroup &get_group(tag_id_t tag);
 
         bool set_bool(tag_id_t tag, bool val);

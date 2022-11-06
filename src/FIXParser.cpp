@@ -62,12 +62,15 @@ FIXMessage FIXParser::parse(const char *buffer, size_t len){
 FIXMsgBuffer FIXParser::serialize(const FIXMessage &msg, bool update_header, bool update_trailer){
     const size_t PREFIX_SIZE = 36;
     const size_t BUFFER_SIZE = 256;
-    std::vector<char> buffer(PREFIX_SIZE, 0);
-    buffer.reserve(BUFFER_SIZE);
-    msg.serialize(buffer);
+    MsgSerialised msg_buffer(BUFFER_SIZE, PREFIX_SIZE);
+    msg.serialize(msg_buffer);
+    if(!msg_buffer.error_.empty()){
+        throw std::runtime_error(msg_buffer.error_);
+    }
+    auto &buffer = msg_buffer.buffer_;
     // add message prefix 8 and 9 tag, add suffix - tag 10
     //  '8=FIX.4.4<SOH>9=<number bytes><SOH>....10=xxx<SOH>'
-    size_t msg_body_length = buffer.size() - PREFIX_SIZE;
+    size_t msg_body_length = msg_buffer.pos_ - PREFIX_SIZE;
     size_t msg_length = msg_body_length;
     size_t pos = PREFIX_SIZE - 1;
     buffer[pos--] = 1; // add SOH after length value
@@ -97,11 +100,12 @@ FIXMsgBuffer FIXParser::serialize(const FIXMessage &msg, bool update_header, boo
             return FIXMsgBuffer::create_dummy();
     }
 
-    char suffix[] = "10=000\001";
-    const size_t suffix_len = 7;
+    char suffix[] = "10=000";
+    const size_t suffix_len = 6;
     { /// calculate CRC summ and update suffix buffer
         unsigned crc = 0;
-        for(size_t pos = msg_start; pos != buffer.size(); ++pos){
+        auto end_pos = msg_buffer.pos_;
+        for(size_t pos = msg_start; pos != end_pos; ++pos){
             crc += buffer[pos];
         }
         crc = crc%256;
@@ -112,6 +116,6 @@ FIXMsgBuffer FIXParser::serialize(const FIXMessage &msg, bool update_header, boo
         suffix[3] += crc % 10;
         crc = crc / 10;
     }
-    buffer.insert(buffer.end(), suffix, suffix + suffix_len); 
-    return FIXMsgBuffer::create(std::move(buffer), msg_start, msg.message_type(), msg.protocol());
+    msg_buffer.append(std::string_view(suffix, suffix_len));
+    return FIXMsgBuffer::create(std::move(buffer), msg_start, msg_buffer.pos_, msg.message_type(), msg.protocol());
 }

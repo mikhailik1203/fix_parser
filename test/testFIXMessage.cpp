@@ -20,10 +20,10 @@ TEST(TestFIXMessage, serialize_empty){
     EXPECT_EQ(FIXProtocol::FIX44, test_msg.protocol());
     EXPECT_EQ(FIXMessageType::MarketDataRequest, test_msg.message_type().type());
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(128, 0);
     test_msg.serialize(buffer);
-    EXPECT_EQ(5, buffer.size()); //msg contains 35=V<SOH>
-    EXPECT_EQ("35=V\001", std::string(buffer.begin(), buffer.end()));
+    EXPECT_EQ(5, buffer.pos_); //msg contains 35=V<SOH>
+    EXPECT_EQ("35=V\001", buffer.to_string());
 }
 
 TEST(TestFIXMessage, serialize_message){
@@ -75,12 +75,12 @@ TEST(TestFIXMessage, serialize_message){
         }
     }
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(256, 0);
     test_msg.serialize(buffer);
     std::string expected_msg = "35=V\00149=TestSndrCompId\00156=TestTgtCompId\00134=77\00152=20221005 12:44:55.123456\001262=TestMdReqId\001263=1\001"
             "264=2\001265=3\001267=3\001269=1\001269=2\001269=3\001146=3\00155=AAA\00155=BBB\00155=CCC\001";
-    EXPECT_EQ(expected_msg.size(), buffer.size());
-    EXPECT_EQ(expected_msg, std::string(buffer.begin(), buffer.end()));
+    EXPECT_EQ(expected_msg.size(), buffer.pos_);
+    EXPECT_EQ(expected_msg, buffer.to_string());
 }
 
 TEST(TestFIXMessage, parse_message){
@@ -179,12 +179,12 @@ TEST(TestFIXMessage, serialize_UT1_message){
         test_msg.set_rawdata(fixTest_gen::RawDataTag1, {"\001\002raw data \001\002"});
     }
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(128, 0);
     test_msg.serialize(buffer);
     std::string expected_msg = "35=UT1\x1" "1=111\x1" "4=Y\x1" "7=123.456\x1" "13=Test string value\x1" 
                 "16=20221024\x1" "19=20221024 12:45:56\x1" "22=100\x1" "23=\x1\x2raw data \x1\x2\x1";
-    EXPECT_EQ(expected_msg.size(), buffer.size());
-    EXPECT_EQ(expected_msg, std::string(buffer.begin(), buffer.end()));
+    EXPECT_EQ(expected_msg.size(), buffer.pos_);
+    EXPECT_EQ(expected_msg, buffer.to_string());
 }
 
 TEST(TestFIXMessage, serialize_UT2_message){
@@ -264,7 +264,7 @@ TEST(TestFIXMessage, serialize_UT2_message){
         }
     }
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(1024, 0);
     test_msg.serialize(buffer);
     std::string expected_msg = "35=UT2\x1" 
         "1=222\x1" "4=Y\x1" "7=223.456\x1" "13=Test string value\x1" "16=20221124\x1" "19=20221124 12:45:56\x1" "22=100\x1" "23=\x1\x2raw data \x1\x2\x1" 
@@ -274,8 +274,8 @@ TEST(TestFIXMessage, serialize_UT2_message){
             "30=1\x1" "31=1122\x1" "1=1000\x1" "4=Y\x1" "7=223.456\x1" "13=Test string value111\x1" "16=20221122\x1" "19=20221122 12:45:56\x1" "22=100\x1" "23=\x1\x2raw 111 data \x1\x2\x1" "2=2000\x1" "5=N\x1" 
             "14=Test string value2\x1" "17=20221124\x1" "20=20221124 12:45:56\x1" "24=111\x1" "25=\x1\x2raw data222 \x1\x2\x1" 
         "32=1\x1" "33=1122\x1" "28=1\x1" "29=1011\x1";
-    EXPECT_EQ(expected_msg.size(), buffer.size());
-    EXPECT_EQ(expected_msg, std::string(buffer.begin(), buffer.end()));
+    EXPECT_EQ(expected_msg.size(), buffer.pos_);
+    EXPECT_EQ(expected_msg, buffer.to_string());
 }
 
 TEST(TestFIXMessage, serialize_UT3_message){
@@ -335,7 +335,7 @@ TEST(TestFIXMessage, serialize_UT3_message){
         }
     }
 
-    std::vector<char> buffer;
+    MsgSerialised buffer(256, 0);
     test_msg.serialize(buffer);
     std::string expected_msg = "35=UT3\x1" 
         "37=3\x1" "38=110011\x1" "38=110022\x1" "38=110033\x1" 
@@ -344,8 +344,8 @@ TEST(TestFIXMessage, serialize_UT3_message){
                       "29=240012\x1" "7=1200.24\x1" "13=Str Grp1->Grp3->Grp4, entry2\x1" 
             "30=2\x1" "31=250011\x1" "1=2500111\x1" "2=2500112\x1" "5=Y\x1" 
                       "31=250012\x1" "1=2500121\x1" "2=2500122\x1" "5=N\x1";
-    EXPECT_EQ(expected_msg.size(), buffer.size());
-    EXPECT_EQ(expected_msg, std::string(buffer.begin(), buffer.end()));
+    EXPECT_EQ(expected_msg.size(), buffer.pos_);
+    EXPECT_EQ(expected_msg, buffer.to_string());
 }
 
 

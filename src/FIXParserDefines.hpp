@@ -59,8 +59,8 @@ namespace fix{
     }; 
 
     struct FIXString{
-        const std::string_view &value()const{return value_;}
-        const std::string_view &to_string()const{return value_;}
+        const std::string_view &value()const noexcept{return value_;}
+        const std::string_view &to_string()const noexcept{return value_;}
     public:
         std::string_view value_;
     };
@@ -95,13 +95,14 @@ namespace fix{
 
         // returns buffer with FIX message from first tag till last
         const char *buffer()const noexcept{ return buffer_;}
+        std::string_view to_string()const noexcept{ return {buffer_, length_};}
 
     protected:
         friend FIXParser;
         // creates empty FIXMsgBuffer, used in case of the error
         static FIXMsgBuffer create_dummy();
         // creates instance with serialized FIX message
-        static FIXMsgBuffer create(std::vector<char> &&data, size_t start_pos, const FIXMsgType &type, const FIXProtocol &protocol);
+        static FIXMsgBuffer create(std::vector<char> &&data, size_t start_pos, size_t last_pos, const FIXMsgType &type, const FIXProtocol &protocol);
 
     private:
         std::vector<char> data_;
@@ -113,7 +114,7 @@ namespace fix{
 
     struct FIXDouble{
         double value()const;
-        const std::string_view &to_string()const{return value_;}
+        const std::string_view &to_string()const noexcept{return value_;}
     public:
         std::string_view value_;
     };
@@ -123,7 +124,7 @@ namespace fix{
         u_int8_t month()const;
         u_int8_t day()const;
 
-        const std::string_view &to_string()const{return value_;}
+        const std::string_view &to_string()const noexcept{return value_;}
     public:
         std::string_view value_;
     };
@@ -136,7 +137,7 @@ namespace fix{
         u_int8_t minute()const;
         u_int8_t seconds()const;
         u_int16_t mseconds()const;
-        const std::string_view &to_string()const{return value_;}
+        const std::string_view &to_string()const noexcept{return value_;}
     public:
         std::string_view value_;
     };
@@ -144,7 +145,7 @@ namespace fix{
     struct FIXRawData{
         uint32_t size()const;
         char at(uint32_t index)const;
-        const std::string_view &to_string()const{return value_;}
+        const std::string_view &to_string()const noexcept{return value_;}
     public:
         std::string_view value_;
     };

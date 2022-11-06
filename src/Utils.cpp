@@ -1,6 +1,7 @@
 #include "Utils.hpp"
 
 #include <cassert>
+#include <charconv>
 
 namespace fix{
     void to_string(int val, std::vector<char> &buffer){
@@ -9,41 +10,18 @@ namespace fix{
             buffer.insert(buffer.end(), buf, buf + 2);
             return;
         }else{
-            char buf[16];
-            int pos = 0;
-            if(val < 0){
-                buf[pos++] = '-';
-                val *= -1;
-            }
-            if(val < 100000){
-                if(val < 100){
-                    pos += (val >= 10)?(2):(1);
-                }else{
-                    if(val < 10000){
-                        pos += (val >= 1000)?(4):(3);
-                    }else{
-                        pos += 5;
-                    }
-                }
-            }else{
-                if(val < 10000000){
-                    pos += (val >= 1000000)?(7):(6);
-                }else{
-                    if(val < 1000000000){
-                        pos += (val >= 100000000)?(9):(8);
-                    }else{
-                        pos += 10;    
-                    }
-                }
+            auto last_pos = buffer.size();
+            if(buffer.capacity() - last_pos < 16){
+                buffer.resize(buffer.size() + 16);
             }
 
-            buf[pos--] = 1;
-            auto count = pos + 1;
-            while (0 < val){
-                buf[pos--] = '0' + val%10;
-                val /= 10;
+            auto [last_ptr, err] = std::to_chars(buffer.data() + last_pos, buffer.data() + last_pos + 15, val);
+            if(std::errc() == err){
+                last_ptr[0] = 1;
+                buffer.resize(last_ptr - buffer.data() + 1);
+                return;
             }
-            buffer.insert(buffer.end(), buf, buf + count + 1);
+            assert(false && "to_string: Unable to convert value to string!");
         }
     }
 
@@ -51,33 +29,16 @@ namespace fix{
         return std::to_string(val) + "=";
     }
 
-    int string_to_int_positive(const std::string_view &val){
-        int res = 0;
-        for(auto v: val){
-            res = res*10 + (v - '0');
+    int string_to_int(const std::string_view &val, int &length){
+        int result = 0;
+        length = 0;        
+        auto[last_ptr, err] = std::from_chars(val.data(), val.data() + val.size(), result);
+        if(std::errc() == err){
+            length = last_ptr - val.data();
+            return result;
         }
-        return res;
-    }
-
-    int string_to_int(const std::string_view &val){
-        int res = 0;
-        size_t count = val.size();
-        size_t pos = 0;
-        int mul = 1;
-        if('-' == val[pos]){
-            mul = -1;
-            ++pos;
-        }
-        while(pos != count){
-            unsigned digit = val[pos] - '0';
-            if(digit <= 9){
-                res = res*10 + digit;
-            }else{
-                return mul*res;
-            }
-            ++pos;
-        }
-        return mul*res;
+        assert(false && "string_to_int: Unable to convert value to string!");
+        return 0;
     }
 
     static const uint64_t BITS[] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 1ULL<< 12, 1ULL<< 13, 1ULL<< 14, 1ULL<< 15, 1ULL<< 16, 1ULL<<17, 
@@ -93,12 +54,12 @@ size_t BitMask::size()const noexcept{
     return 8*sizeof(mask_);
 }
 
-void BitMask::set(size_t index){
+void BitMask::set(size_t index)noexcept{
     assert(index < 8*sizeof(mask_));
     mask_ |= BITS[index];
 }
 
-void BitMask::unset(size_t index){
+void BitMask::unset(size_t index)noexcept{
     assert(index < 8*sizeof(mask_));
     mask_ &= ~BITS[index];
 }
@@ -111,19 +72,14 @@ size_t MsgReceived::current_tag_id(){
     if(0 != curr_tag_id_)
         return curr_tag_id_;
     curr_tag_id_ = 0;
-    while(pos_ < data_.size()){
-        int val = data_[pos_] - '0';
-        if (0 <= val && val <= 9){
-            curr_tag_id_ = 10*curr_tag_id_ + val;
-        }else if(13 == val){ //'=' symbol
-            ++pos_;// skip '=', so next is a value symbol
-            return curr_tag_id_;
-        }else{
-            break;
-        }
-        ++pos_;
+
+    auto[last_ptr, err] = std::from_chars(data_.data() + pos_, data_.data() + data_.size(), curr_tag_id_);
+    if(std::errc() == err && '=' == last_ptr[0]){
+        pos_ = last_ptr - data_.data() + 1;
+        return curr_tag_id_;
     }
     curr_tag_id_ = 0;
+    assert(false && "Invalid tag-value format, '=' is expected after tag_id!");
     error_ = "Invalid tag-value format, '=' is expected after tag_id!";
     return curr_tag_id_;
 }
@@ -178,28 +134,100 @@ char MsgReceived::parse_char_value(){
 int MsgReceived::parse_int_value(){
     curr_tag_id_ = 0;
 
-    int res = 0;
     size_t count = data_.size();
-    int mul = 1;
-    if('-' == data_[pos_]){
-        mul = -1;
-        ++pos_;
-    }
-    while(pos_ != count){
-        unsigned digit = data_[pos_] - '0';
-        if(digit <= 9){
-            res = res*10 + digit;
-        }else{
-            if(1 == data_[pos_]){
-                ++pos_;// skip SOH
-                return mul*res;
-            }
-            error_ = "Invalid int tag-value format, SOH is expected after value!";
-            return 0;
-        }
-        ++pos_;
+    int result = 0;
+    auto[last_ptr, err] = std::from_chars(data_.data() + pos_, data_.data() + count, result);
+    if(std::errc() == err && 1 == last_ptr[0]){
+        ++last_ptr;
+        pos_ = last_ptr - data_.data();
+        return result;
     }
     error_ = "Invalid int tag-value format, SOH is not found in message!";    
     return 0;
 }
 
+MsgSerialised::MsgSerialised(size_t count, size_t start_pos): 
+    buffer_(count, 1), pos_(start_pos), size_(count)
+{}
+
+void MsgSerialised::resize(size_t val){
+    if(size_ - pos_ < val){
+        size_ *= 2;
+        buffer_.resize(size_, 1);
+    }
+}
+
+void MsgSerialised::append(const std::string &val){
+    auto val_len = val.size();
+    resize(val_len);
+    std::copy(val.begin(), val.end(), buffer_.begin() + pos_);
+    pos_ += val_len;
+}
+
+void MsgSerialised::append(size_t val){
+    resize(32);
+    if(0 == val){
+        buffer_[pos_++] = '0';
+        ++pos_; // skip SOH
+        return;
+    }else{
+        auto [last_ptr, err] = std::to_chars(buffer_.data() + pos_, buffer_.data() + size_, val);
+        if(std::errc() == err){
+            pos_ = last_ptr - buffer_.data() + 1;// skip SOH
+            return;
+        }
+        assert(false && "MsgSerialised::append: Unable to convert size_t to string!");
+    }
+}
+
+void MsgSerialised::append(const int &val){
+    resize(32);
+    if(0 == val){
+        buffer_[pos_++] = '0';
+        ++pos_;// skip SOH
+        return;
+    }else{
+        auto [last_ptr, err] = std::to_chars(buffer_.data() + pos_, buffer_.data() + size_, val);
+        if(std::errc() == err){
+            pos_ = last_ptr - buffer_.data() + 1; // skip SOH
+            return;
+        }
+        assert(false && "MsgSerialised::append: Unable to convert int to string!");
+    }
+}
+
+void MsgSerialised::append(char val){
+    resize(32);
+    buffer_[pos_++] = val;
+    ++pos_;// skip SOH
+}
+
+void MsgSerialised::append(const std::string_view &val){
+    resize(val.size() + 1);
+    std::copy(std::begin(val), std::end(val), buffer_.begin() + pos_);
+    pos_ += val.size() + 1;// skip SOH
+}
+
+void MsgSerialised::append(const fix::FIXDouble &val){
+    append(val.to_string());
+}
+
+void MsgSerialised::append(const fix::FIXString &val){
+    append(val.to_string());
+}
+
+void MsgSerialised::append(const fix::FIXDate &val){
+    append(val.to_string());
+}
+
+void MsgSerialised::append(const fix::FIXDatetime &val){
+    append(val.to_string());
+}
+
+void MsgSerialised::append(const fix::FIXRawData &val){
+    append(val.to_string());
+}
+
+std::string MsgSerialised::to_string()const{
+    return std::string(buffer_.begin(), buffer_.begin() + pos_);
+}

@@ -59,7 +59,7 @@ FIXTagType FIXGroup::tag_type(tag_id_t tag)const{
     return meta_.tag_type(tag);
 }
 
-void FIXGroup::serialize(std::vector<char> &buffer)const{
+void FIXGroup::serialize(MsgSerialised &buffer)const{
     if(entries_.empty())
         return;
     meta_.serialize_group_size(entries_.size(), buffer);

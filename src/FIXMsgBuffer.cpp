@@ -65,12 +65,12 @@ FIXMsgBuffer FIXMsgBuffer::create(const char *buffer, uint32_t length){
     return data;
 }
 
-FIXMsgBuffer FIXMsgBuffer::create(std::vector<char> &&data, size_t start_pos, 
+FIXMsgBuffer FIXMsgBuffer::create(std::vector<char> &&data, size_t start_pos, size_t last_pos, 
                     const FIXMsgType &type, const FIXProtocol &protocol){
     FIXMsgBuffer msg_buf;
     msg_buf.data_ = std::move(data);    
     msg_buf.buffer_ = &msg_buf.data_[start_pos];
-    msg_buf.length_ = msg_buf.data_.size() - start_pos;
+    msg_buf.length_ = last_pos - start_pos;
     msg_buf.type_ = type;
     msg_buf.protocol_ = protocol;
     return msg_buf;

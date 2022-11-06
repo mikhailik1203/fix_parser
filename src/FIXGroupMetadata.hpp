@@ -20,7 +20,7 @@ namespace fix{
         ~FIXGroupMetadata() = default;
         FIXGroupMetadata(const FIXGroupMetadata &) = default;
         FIXGroupMetadata &operator=(const FIXGroupMetadata &) = default;
-        FIXGroupMetadata(FIXGroupMetadata &&) = default;
+        FIXGroupMetadata(FIXGroupMetadata &&) noexcept = default;
         FIXGroupMetadata &operator=(FIXGroupMetadata &&) = default;
 
         // returns leading tag of the group
@@ -36,7 +36,7 @@ namespace fix{
         bool parse(MsgReceived &data, FIXGroup &grp_val, size_t entry_count)const;
 
         // serializes data to the sequence of bytes
-        void serialize_group_size(size_t count,  std::vector<char> &buffer)const;
+        void serialize_group_size(size_t count, MsgSerialised &buffer)const;
 
         std::vector<FIXGroup> create_nested()const;
     public:
@@ -56,7 +56,7 @@ namespace fix{
 
         size_t tags_count()const noexcept{ return tag_metadata_.size();}
     public:
-        void serialize(const FIXGroupEntry &data, std::vector<char> &buffer)const;
+        void serialize(const FIXGroupEntry &data, MsgSerialised &buffer)const;
 
     private:
         void process_tag(const FIXDictionary &dict, const FIXTagVocabulary &vocab, tag_id_t tag_id);
@@ -76,7 +76,6 @@ namespace fix{
         TagToMetaIndexT tag_to_meta_idx_;
 
         // templates for data
-        //std::string buffer_;
         uint16_t tag_char_count_ = 0;
         uint16_t tag_int_count_ = 0;
         uint16_t tag_double_count_ = 0;
